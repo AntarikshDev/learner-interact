@@ -5,6 +5,7 @@ import AddLessonPopup from "@/components/AddLessonPopup";
 import AddLessonPopupZoho from "@/components/AddLessonPopupZoho";
 import ActionDropdown from "@/components/ActionDropdown";
 import AssetsLibraryPopup from "@/components/AssetsLibraryPopup";
+import Branding from "@/components/Branding";
 
 const Index = () => {
   const [popupOpen, setPopupOpen] = useState(false);
@@ -12,6 +13,7 @@ const Index = () => {
   const [lessonPopupOpen, setLessonPopupOpen] = useState(false);
   const [zohoPopupOpen, setZohoPopupOpen] = useState(false);
   const [assetsLibraryOpen, setAssetsLibraryOpen] = useState(false);
+  const [brandingOpen, setBrandingOpen] = useState(false);
 
   const handleOpenPopup = (type: "reviewed" | "reject" | "message" | "history") => {
     setActionType(type);
@@ -33,6 +35,12 @@ const Index = () => {
   const handleAssetsLibraryAdd = (assets: any[]) => {
     console.log("Added assets:", assets);
     setAssetsLibraryOpen(false);
+  };
+
+  // Branding handlers
+  const handleBrandingSave = (data: any) => {
+    console.log("Branding saved:", data);
+    setBrandingOpen(false);
   };
 
   return (
@@ -136,6 +144,20 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Branding Demo */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold text-foreground">Lesson Branding</h2>
+          <div className="flex justify-center">
+            <Button 
+              variant="default" 
+              onClick={() => setBrandingOpen(true)}
+              className="w-full max-w-md"
+            >
+              Open Branding Settings
+            </Button>
+          </div>
+        </div>
+
         <ActionPopup
           isOpen={popupOpen}
           onClose={() => setPopupOpen(false)}
@@ -183,6 +205,12 @@ const Index = () => {
           onClose={() => setAssetsLibraryOpen(false)}
           onAddToLesson={handleAssetsLibraryAdd}
           lesson_id={123}
+        />
+
+        <Branding
+          isOpen={brandingOpen}
+          onClose={() => setBrandingOpen(false)}
+          onSave={handleBrandingSave}
         />
       </div>
     </div>
