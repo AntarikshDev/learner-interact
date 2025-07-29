@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import ActionPopup from "@/components/ActionPopup";
 import AddLessonPopup from "@/components/AddLessonPopup";
 import AddLessonPopupZoho from "@/components/AddLessonPopupZoho";
+import ActionDropdown from "@/components/ActionDropdown";
 
 const Index = () => {
   const [popupOpen, setPopupOpen] = useState(false);
@@ -69,6 +70,26 @@ const Index = () => {
           >
             View History
           </Button>
+          </div>
+        </div>
+
+        {/* Action Dropdown Demo */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold text-foreground">Action Dropdown</h2>
+          <div className="flex justify-center">
+            <ActionDropdown
+              contentId={1}
+              contentType="Video"
+              contentDetails={{ title: "Sample Video" }}
+              initialFreeStatus={false}
+              recordType="free"
+              onView={() => console.log("View content")}
+              onToggleFree={(status) => console.log("Toggle free:", status)}
+              onTogglePublish={(status) => console.log("Toggle publish:", status)}
+              initialPublishStatus={true}
+              canEdit={true}
+              isProcessing=""
+            />
           </div>
         </div>
 
