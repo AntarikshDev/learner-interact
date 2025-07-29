@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import ActionPopup from "@/components/ActionPopup";
 import AddLessonPopup from "@/components/AddLessonPopup";
+import AddLessonPopupZoho from "@/components/AddLessonPopupZoho";
 
 const Index = () => {
   const [popupOpen, setPopupOpen] = useState(false);
   const [actionType, setActionType] = useState<"reviewed" | "reject" | "message" | "history">("reviewed");
   const [lessonPopupOpen, setLessonPopupOpen] = useState(false);
+  const [zohoPopupOpen, setZohoPopupOpen] = useState(false);
 
   const handleOpenPopup = (type: "reviewed" | "reject" | "message" | "history") => {
     setActionType(type);
@@ -72,14 +74,23 @@ const Index = () => {
 
         {/* Add Lesson Popup Demo */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-semibold text-foreground">Add Lesson Popup</h2>
-          <Button 
-            variant="default" 
-            onClick={() => setLessonPopupOpen(true)}
-            className="w-full max-w-md mx-auto"
-          >
-            Open Add Lesson Popup
-          </Button>
+          <h2 className="text-2xl font-semibold text-foreground">Add Lesson Popups</h2>
+          <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+            <Button 
+              variant="default" 
+              onClick={() => setLessonPopupOpen(true)}
+              className="w-full"
+            >
+              Professional Theme
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setZohoPopupOpen(true)}
+              className="w-full"
+            >
+              Zoho-Inspired Theme
+            </Button>
+          </div>
         </div>
 
         <ActionPopup
@@ -90,6 +101,22 @@ const Index = () => {
           userEmail="student@example.com"
           file={null}
           submission_id={123}
+        />
+
+        <AddLessonPopupZoho
+          isOpen={zohoPopupOpen}
+          onClose={() => setZohoPopupOpen(false)}
+          onOpenVideoUpload={() => handleLessonUpload("video")}
+          onOpenAudioUpload={() => handleLessonUpload("audio")}
+          onOpenPdfUpload={() => handleLessonUpload("pdf")}
+          onOpenSlideUpload={() => handleLessonUpload("slide")}
+          onOpenLiveUpload={() => handleLessonUpload("live")}
+          onOpenLinkUpload={() => handleLessonUpload("link")}
+          onOpenArticleUpload={() => handleLessonUpload("article")}
+          onOpenAssignmentUpload={() => handleLessonUpload("assignment")}
+          onOpenSectionQuizUpload={() => handleLessonUpload("quiz")}
+          onOpenScormUpload={() => handleLessonUpload("scorm")}
+          lesson_id={123}
         />
 
         <AddLessonPopup

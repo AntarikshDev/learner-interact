@@ -64,6 +64,21 @@ export default {
 				'modal-background': 'hsl(var(--modal-background))',
 				'table-header': 'hsl(var(--table-header))',
 				'table-row-hover': 'hsl(var(--table-row-hover))',
+				// Zoho-specific colors
+				'zoho-primary': 'hsl(var(--zoho-primary))',
+				'zoho-primary-foreground': 'hsl(var(--zoho-primary-foreground))',
+				'zoho-secondary': 'hsl(var(--zoho-secondary))',
+				'zoho-secondary-foreground': 'hsl(var(--zoho-secondary-foreground))',
+				'zoho-accent': 'hsl(var(--zoho-accent))',
+				'zoho-accent-foreground': 'hsl(var(--zoho-accent-foreground))',
+				'zoho-success': 'hsl(var(--zoho-success))',
+				'zoho-success-foreground': 'hsl(var(--zoho-success-foreground))',
+				'zoho-warning': 'hsl(var(--zoho-warning))',
+				'zoho-warning-foreground': 'hsl(var(--zoho-warning-foreground))',
+				'zoho-muted': 'hsl(var(--zoho-muted))',
+				'zoho-muted-foreground': 'hsl(var(--zoho-muted-foreground))',
+				'zoho-border': 'hsl(var(--zoho-border))',
+				'zoho-input': 'hsl(var(--zoho-input))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -78,17 +93,22 @@ export default {
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+				'zoho': 'var(--radius-zoho)'
 			},
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
 				'gradient-accent': 'var(--gradient-accent)',
-				'gradient-subtle': 'var(--gradient-subtle)'
+				'gradient-subtle': 'var(--gradient-subtle)',
+				'gradient-zoho': 'var(--gradient-zoho)',
+				'gradient-zoho-subtle': 'var(--gradient-zoho-subtle)'
 			},
 			boxShadow: {
 				'soft': 'var(--shadow-soft)',
 				'medium': 'var(--shadow-medium)',
-				'large': 'var(--shadow-large)'
+				'large': 'var(--shadow-large)',
+				'zoho': 'var(--shadow-zoho)',
+				'zoho-hover': 'var(--shadow-zoho-hover)'
 			},
 			transitionTimingFunction: {
 				'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
