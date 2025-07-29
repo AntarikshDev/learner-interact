@@ -6,6 +6,7 @@ import AddLessonPopupZoho from "@/components/AddLessonPopupZoho";
 import ActionDropdown from "@/components/ActionDropdown";
 import AssetsLibraryPopup from "@/components/AssetsLibraryPopup";
 import Branding from "@/components/Branding";
+import ChatCard from "@/components/ChatCard";
 
 const Index = () => {
   const [popupOpen, setPopupOpen] = useState(false);
@@ -155,6 +156,16 @@ const Index = () => {
             >
               Open Branding Settings
             </Button>
+          </div>
+        </div>
+
+        {/* Chat Card Demo */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold text-foreground">Chat Card</h2>
+          <div className="flex justify-center">
+            <div className="w-full max-w-md">
+              <ChatCard />
+            </div>
           </div>
         </div>
 
