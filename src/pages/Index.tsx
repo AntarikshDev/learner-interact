@@ -7,6 +7,10 @@ import ActionDropdown from "@/components/ActionDropdown";
 import AssetsLibraryPopup from "@/components/AssetsLibraryPopup";
 import Branding from "@/components/Branding";
 import ChatCard from "@/components/ChatCard";
+import AdminDashboard from "@/components/AdminDashboard";
+import InstructorDashboard from "@/components/InstructorDashboard";
+import SubAdminDashboard from "@/components/SubAdminDashboard";
+import StudentDashboard from "@/components/StudentDashboard";
 
 const Index = () => {
   const [popupOpen, setPopupOpen] = useState(false);
@@ -15,6 +19,7 @@ const Index = () => {
   const [zohoPopupOpen, setZohoPopupOpen] = useState(false);
   const [assetsLibraryOpen, setAssetsLibraryOpen] = useState(false);
   const [brandingOpen, setBrandingOpen] = useState(false);
+  const [activeDashboard, setActiveDashboard] = useState<string | null>(null);
 
   const handleOpenPopup = (type: "reviewed" | "reject" | "message" | "history") => {
     setActionType(type);
@@ -158,6 +163,47 @@ const Index = () => {
             </Button>
           </div>
         </div>
+
+        {/* Dashboard Selection */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold text-foreground">Dashboard Demos</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Button 
+              variant={activeDashboard === "admin" ? "default" : "outline"}
+              onClick={() => setActiveDashboard(activeDashboard === "admin" ? null : "admin")}
+            >
+              Admin Dashboard
+            </Button>
+            <Button 
+              variant={activeDashboard === "instructor" ? "default" : "outline"}
+              onClick={() => setActiveDashboard(activeDashboard === "instructor" ? null : "instructor")}
+            >
+              Instructor Dashboard
+            </Button>
+            <Button 
+              variant={activeDashboard === "subadmin" ? "default" : "outline"}
+              onClick={() => setActiveDashboard(activeDashboard === "subadmin" ? null : "subadmin")}
+            >
+              Sub Admin Dashboard
+            </Button>
+            <Button 
+              variant={activeDashboard === "student" ? "default" : "outline"}
+              onClick={() => setActiveDashboard(activeDashboard === "student" ? null : "student")}
+            >
+              Student Dashboard
+            </Button>
+          </div>
+        </div>
+
+        {/* Active Dashboard */}
+        {activeDashboard && (
+          <div className="bg-muted/30 rounded-lg">
+            {activeDashboard === "admin" && <AdminDashboard />}
+            {activeDashboard === "instructor" && <InstructorDashboard />}
+            {activeDashboard === "subadmin" && <SubAdminDashboard />}
+            {activeDashboard === "student" && <StudentDashboard />}
+          </div>
+        )}
 
         {/* Chat Card Demo */}
         <div className="space-y-4">
