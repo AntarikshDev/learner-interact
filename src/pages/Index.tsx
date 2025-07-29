@@ -4,12 +4,14 @@ import ActionPopup from "@/components/ActionPopup";
 import AddLessonPopup from "@/components/AddLessonPopup";
 import AddLessonPopupZoho from "@/components/AddLessonPopupZoho";
 import ActionDropdown from "@/components/ActionDropdown";
+import AssetsLibraryPopup from "@/components/AssetsLibraryPopup";
 
 const Index = () => {
   const [popupOpen, setPopupOpen] = useState(false);
   const [actionType, setActionType] = useState<"reviewed" | "reject" | "message" | "history">("reviewed");
   const [lessonPopupOpen, setLessonPopupOpen] = useState(false);
   const [zohoPopupOpen, setZohoPopupOpen] = useState(false);
+  const [assetsLibraryOpen, setAssetsLibraryOpen] = useState(false);
 
   const handleOpenPopup = (type: "reviewed" | "reject" | "message" | "history") => {
     setActionType(type);
@@ -25,6 +27,12 @@ const Index = () => {
   const handleLessonUpload = (type: string) => {
     console.log(`Upload ${type} content`);
     setLessonPopupOpen(false);
+  };
+
+  // Assets library handlers
+  const handleAssetsLibraryAdd = (assets: any[]) => {
+    console.log("Added assets:", assets);
+    setAssetsLibraryOpen(false);
   };
 
   return (
@@ -114,6 +122,20 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Assets Library Demo */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold text-foreground">Assets Library</h2>
+          <div className="flex justify-center">
+            <Button 
+              variant="default" 
+              onClick={() => setAssetsLibraryOpen(true)}
+              className="w-full max-w-md"
+            >
+              Open Assets Library
+            </Button>
+          </div>
+        </div>
+
         <ActionPopup
           isOpen={popupOpen}
           onClose={() => setPopupOpen(false)}
@@ -153,6 +175,13 @@ const Index = () => {
           onOpenAssignmentUpload={() => handleLessonUpload("assignment")}
           onOpenSectionQuizUpload={() => handleLessonUpload("quiz")}
           onOpenScormUpload={() => handleLessonUpload("scorm")}
+          lesson_id={123}
+        />
+
+        <AssetsLibraryPopup
+          isOpen={assetsLibraryOpen}
+          onClose={() => setAssetsLibraryOpen(false)}
+          onAddToLesson={handleAssetsLibraryAdd}
           lesson_id={123}
         />
       </div>
