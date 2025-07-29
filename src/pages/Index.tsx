@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import ActionPopup from "@/components/ActionPopup";
+import AddLessonPopup from "@/components/AddLessonPopup";
 
 const Index = () => {
   const [popupOpen, setPopupOpen] = useState(false);
   const [actionType, setActionType] = useState<"reviewed" | "reject" | "message" | "history">("reviewed");
+  const [lessonPopupOpen, setLessonPopupOpen] = useState(false);
 
   const handleOpenPopup = (type: "reviewed" | "reject" | "message" | "history") => {
     setActionType(type);
@@ -16,15 +18,24 @@ const Index = () => {
     setPopupOpen(false);
   };
 
+  // Lesson popup handlers
+  const handleLessonUpload = (type: string) => {
+    console.log(`Upload ${type} content`);
+    setLessonPopupOpen(false);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-8">
       <div className="text-center space-y-8">
         <div>
-          <h1 className="text-4xl font-bold mb-4 text-foreground">ActionPopup Component Demo</h1>
-          <p className="text-xl text-muted-foreground">Click the buttons below to preview different popup types</p>
+          <h1 className="text-4xl font-bold mb-4 text-foreground">LMS Component Demo</h1>
+          <p className="text-xl text-muted-foreground">Preview our professional learning management system components</p>
         </div>
         
-        <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+        {/* Action Popup Demo */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold text-foreground">Action Popup</h2>
+          <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
           <Button 
             variant="success" 
             onClick={() => handleOpenPopup("reviewed")}
@@ -56,6 +67,19 @@ const Index = () => {
           >
             View History
           </Button>
+          </div>
+        </div>
+
+        {/* Add Lesson Popup Demo */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold text-foreground">Add Lesson Popup</h2>
+          <Button 
+            variant="default" 
+            onClick={() => setLessonPopupOpen(true)}
+            className="w-full max-w-md mx-auto"
+          >
+            Open Add Lesson Popup
+          </Button>
         </div>
 
         <ActionPopup
@@ -66,6 +90,22 @@ const Index = () => {
           userEmail="student@example.com"
           file={null}
           submission_id={123}
+        />
+
+        <AddLessonPopup
+          isOpen={lessonPopupOpen}
+          onClose={() => setLessonPopupOpen(false)}
+          onOpenVideoUpload={() => handleLessonUpload("video")}
+          onOpenAudioUpload={() => handleLessonUpload("audio")}
+          onOpenPdfUpload={() => handleLessonUpload("pdf")}
+          onOpenSlideUpload={() => handleLessonUpload("slide")}
+          onOpenLiveUpload={() => handleLessonUpload("live")}
+          onOpenLinkUpload={() => handleLessonUpload("link")}
+          onOpenArticleUpload={() => handleLessonUpload("article")}
+          onOpenAssignmentUpload={() => handleLessonUpload("assignment")}
+          onOpenSectionQuizUpload={() => handleLessonUpload("quiz")}
+          onOpenScormUpload={() => handleLessonUpload("scorm")}
+          lesson_id={123}
         />
       </div>
     </div>
