@@ -11,6 +11,7 @@ import AdminDashboard from "@/components/AdminDashboard";
 import InstructorDashboard from "@/components/InstructorDashboard";
 import SubAdminDashboard from "@/components/SubAdminDashboard";
 import StudentDashboard from "@/components/StudentDashboard";
+import StudentCourseDetails from "@/components/StudentCourseDetails";
 
 const Index = () => {
   const [popupOpen, setPopupOpen] = useState(false);
@@ -20,6 +21,7 @@ const Index = () => {
   const [assetsLibraryOpen, setAssetsLibraryOpen] = useState(false);
   const [brandingOpen, setBrandingOpen] = useState(false);
   const [activeDashboard, setActiveDashboard] = useState<string | null>(null);
+  const [showCourseDetails, setShowCourseDetails] = useState(false);
 
   const handleOpenPopup = (type: "reviewed" | "reject" | "message" | "history") => {
     setActionType(type);
@@ -48,6 +50,10 @@ const Index = () => {
     console.log("Branding saved:", data);
     setBrandingOpen(false);
   };
+
+  if (showCourseDetails) {
+    return <StudentCourseDetails />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-8">
@@ -160,6 +166,13 @@ const Index = () => {
               className="w-full max-w-md"
             >
               Open Branding Settings
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowCourseDetails(true)}
+              className="w-full max-w-md"
+            >
+              View Course Details Page
             </Button>
           </div>
         </div>
