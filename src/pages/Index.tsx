@@ -174,6 +174,13 @@ const Index = () => {
             >
               View Course Details Page
             </Button>
+            <Button 
+              variant="professional" 
+              onClick={() => window.open('/landing', '_blank')}
+              className="w-full max-w-md"
+            >
+              View Landing Page
+            </Button>
           </div>
         </div>
 
