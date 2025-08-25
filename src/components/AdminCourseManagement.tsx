@@ -1247,8 +1247,8 @@ const AdminCourseManagement: React.FC = () => {
                                               "Content"
                                             }
                                             onView={() => handleView(item)}
-                                            onToggleFree={(newStatus) => handleToggleFree(item.content_id, newStatus)}
-                                            onTogglePublish={(newStatus) => handleTogglePublish(item.content_id, newStatus)}
+                                            onToggleFree={(contentId, newStatus) => handleToggleFree(contentId, newStatus)}
+                                            onTogglePublish={(contentId, newStatus) => handleTogglePublish(contentId, newStatus)}
                                             initialPublishStatus={item.is_published}
                                             canEdit={canEdit}
                                             isProcessing={["Raw", "Video", "video", "Audio"].includes(item.content_type) ? "true" : "false"}
@@ -1323,11 +1323,8 @@ const AdminCourseManagement: React.FC = () => {
               is_free: selectedContent.is_free,
               is_published: selectedContent.is_published,
               status: selectedContent.status,
-              quiz_type: selectedContent.quiz_type,
-              live_class_status: selectedContent.live_class_status,
-              start_time: selectedContent.start_time,
-              class_duration: selectedContent.class_duration,
-              start_url: selectedContent.start_url,
+              added_date: selectedContent.added_date,
+              order_index: selectedContent.order_index,
             }}
           />
         )}
@@ -1366,7 +1363,8 @@ const AdminCourseManagement: React.FC = () => {
           isOpen={addContentDialog.isOpen}
           onClose={() => setAddContentDialog({ isOpen: false, sectionId: null })}
           sectionId={addContentDialog.sectionId}
-          onSave={(type, title) => {
+          onSave={(contentData) => {
+            const { type, title } = contentData;
             if (addContentDialog.sectionId) {
               const newContent: ContentItem = {
                 content_id: Date.now(),
