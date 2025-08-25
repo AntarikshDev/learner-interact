@@ -20,7 +20,7 @@ const tutorialSteps: TutorialStep[] = [
     description: "This is your course management dashboard where you can organize your course content, manage lessons, and track your progress.",
     target: "header",
     position: "bottom",
-    color: "from-primary/20 to-primary/10 border-primary/30",
+    color: "from-green-400 to-emerald-500 border-green-400 shadow-[0_0_30px_rgba(34,197,94,0.5)]",
     action: "Get Started"
   },
   {
@@ -29,7 +29,7 @@ const tutorialSteps: TutorialStep[] = [
     description: "Each card represents a course section. Click the expand/collapse button to view or hide section contents.",
     target: "section-card",
     position: "right",
-    color: "from-blue-500/20 to-blue-400/10 border-blue-400/30",
+    color: "from-blue-400 to-cyan-500 border-blue-400 shadow-[0_0_30px_rgba(59,130,246,0.5)]",
     action: "Try Expanding"
   },
   {
@@ -38,7 +38,7 @@ const tutorialSteps: TutorialStep[] = [
     description: "Click this button to add new content items like videos, PDFs, or quizzes to your section.",
     target: "add-content",
     position: "left",
-    color: "from-green-500/20 to-green-400/10 border-green-400/30",
+    color: "from-lime-400 to-green-500 border-lime-400 shadow-[0_0_30px_rgba(132,204,22,0.5)]",
     action: "Add Content"
   },
   {
@@ -47,7 +47,7 @@ const tutorialSteps: TutorialStep[] = [
     description: "Each content item can be reordered by dragging, and you can use the action menu to manage visibility and access.",
     target: "content-item",
     position: "top",
-    color: "from-purple-500/20 to-purple-400/10 border-purple-400/30",
+    color: "from-purple-400 to-violet-500 border-purple-400 shadow-[0_0_30px_rgba(147,51,234,0.5)]",
     action: "Manage Content"
   },
   {
@@ -56,7 +56,7 @@ const tutorialSteps: TutorialStep[] = [
     description: "Use this dropdown to view content, toggle free/paid access, publish/unpublish, or delete items.",
     target: "action-dropdown",
     position: "left",
-    color: "from-orange-500/20 to-orange-400/10 border-orange-400/30",
+    color: "from-orange-400 to-red-500 border-orange-400 shadow-[0_0_30px_rgba(251,146,60,0.5)]",
     action: "Explore Actions"
   },
   {
@@ -65,7 +65,7 @@ const tutorialSteps: TutorialStep[] = [
     description: "When you reorder content, don't forget to save your changes using the Save Order button.",
     target: "save-button",
     position: "bottom",
-    color: "from-emerald-500/20 to-emerald-400/10 border-emerald-400/30",
+    color: "from-emerald-400 to-teal-500 border-emerald-400 shadow-[0_0_30px_rgba(52,211,153,0.5)]",
     action: "Save Order"
   },
   {
@@ -74,7 +74,7 @@ const tutorialSteps: TutorialStep[] = [
     description: "Use this floating button to create new course sections/lessons anytime. It's always accessible as you scroll.",
     target: "floating-button",
     position: "left",
-    color: "from-rose-500/20 to-rose-400/10 border-rose-400/30",
+    color: "from-pink-400 to-rose-500 border-pink-400 shadow-[0_0_30px_rgba(244,114,182,0.5)]",
     action: "Create Lesson"
   },
   {
@@ -83,7 +83,7 @@ const tutorialSteps: TutorialStep[] = [
     description: "Use the search bar to quickly find specific content within your course.",
     target: "search-bar",
     position: "bottom",
-    color: "from-cyan-500/20 to-cyan-400/10 border-cyan-400/30",
+    color: "from-cyan-400 to-blue-500 border-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.5)]",
     action: "Try Searching"
   }
 ];
@@ -121,6 +121,54 @@ const CourseTutorial: React.FC = () => {
 
   const currentTutorialStep = tutorialSteps[currentStep];
 
+  // Get positioning for floating cards based on step target
+  const getCardPosition = (step: TutorialStep) => {
+    const positions = {
+      header: { top: "80px", left: "50%", transform: "translateX(-50%)" },
+      "section-card": { top: "200px", right: "20px" },
+      "add-content": { top: "300px", left: "20px" },
+      "content-item": { bottom: "300px", left: "50%", transform: "translateX(-50%)" },
+      "action-dropdown": { top: "250px", left: "20px" },
+      "save-button": { bottom: "120px", left: "50%", transform: "translateX(-50%)" },
+      "floating-button": { bottom: "150px", left: "20px" },
+      "search-bar": { top: "140px", left: "50%", transform: "translateX(-50%)" }
+    };
+    return positions[step.target] || { top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
+  };
+
+  // Get arrow position for pointing to target
+  const getArrowClasses = (position: string) => {
+    const arrows = {
+      top: "after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-l-[15px] after:border-r-[15px] after:border-t-[15px] after:border-l-transparent after:border-r-transparent",
+      bottom: "before:absolute before:bottom-full before:left-1/2 before:-translate-x-1/2 before:border-l-[15px] before:border-r-[15px] before:border-b-[15px] before:border-l-transparent before:border-r-transparent",
+      left: "after:absolute after:top-1/2 after:left-full after:-translate-y-1/2 after:border-t-[15px] after:border-b-[15px] after:border-l-[15px] after:border-t-transparent after:border-b-transparent",
+      right: "before:absolute before:top-1/2 before:right-full before:-translate-y-1/2 before:border-t-[15px] before:border-b-[15px] before:border-r-[15px] before:border-t-transparent before:border-b-transparent"
+    };
+    return arrows[position] || "";
+  };
+
+  const getArrowColor = (color: string, position: string) => {
+    const colorMap = {
+      "green-400": "after:border-t-green-400 before:border-b-green-400",
+      "blue-400": "after:border-t-blue-400 before:border-b-blue-400", 
+      "lime-400": "after:border-t-lime-400 before:border-b-lime-400",
+      "purple-400": "after:border-t-purple-400 before:border-b-purple-400",
+      "orange-400": "after:border-t-orange-400 before:border-b-orange-400",
+      "emerald-400": "after:border-t-emerald-400 before:border-b-emerald-400",
+      "pink-400": "after:border-t-pink-400 before:border-b-pink-400",
+      "cyan-400": "after:border-t-cyan-400 before:border-b-cyan-400"
+    };
+    
+    // Extract color from the color string
+    const colorKey = Object.keys(colorMap).find(key => color.includes(key));
+    const colorClass = colorKey ? colorMap[colorKey] : "after:border-t-green-400 before:border-b-green-400";
+    
+    if (position === "left") return colorClass.replace("border-t-", "border-l-").replace("border-b-", "border-l-");
+    if (position === "right") return colorClass.replace("border-t-", "border-r-").replace("border-b-", "border-r-");
+    
+    return colorClass;
+  };
+
   if (!isVisible) {
     return (
       <div className="fixed top-4 right-4 z-50">
@@ -136,6 +184,10 @@ const CourseTutorial: React.FC = () => {
       </div>
     );
   }
+
+  const cardPosition = getCardPosition(currentTutorialStep);
+  const arrowClasses = getArrowClasses(currentTutorialStep.position);
+  const arrowColor = getArrowColor(currentTutorialStep.color, currentTutorialStep.position);
 
   return (
     <>
@@ -153,20 +205,24 @@ const CourseTutorial: React.FC = () => {
       </div>
 
       {/* Overlay */}
-      <div className="fixed inset-0 bg-black/20 backdrop-blur-[1px] z-40" />
+      <div className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-40" />
 
-      {/* Tutorial Card */}
+      {/* Floating Tutorial Card */}
       {!isCompleted && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-96 max-w-[90vw]">
+        <div 
+          className="fixed z-50 w-80 max-w-[90vw] animate-fade-in"
+          style={cardPosition}
+        >
           <div className={`
             bg-gradient-to-br ${currentTutorialStep?.color}
-            backdrop-blur-md rounded-2xl shadow-2xl border
-            p-6 animate-scale-in
+            backdrop-blur-lg rounded-2xl border-2
+            p-6 relative ${arrowClasses} ${arrowColor}
+            bg-black/10 text-white
           `}>
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-white/20 text-white border-white/30">
                   Step {currentStep + 1} of {tutorialSteps.length}
                 </Badge>
                 <div className="flex gap-1">
@@ -174,7 +230,7 @@ const CourseTutorial: React.FC = () => {
                     <div
                       key={index}
                       className={`w-2 h-2 rounded-full transition-colors ${
-                        index <= currentStep ? 'bg-primary' : 'bg-muted'
+                        index <= currentStep ? 'bg-white' : 'bg-white/30'
                       }`}
                     />
                   ))}
@@ -184,7 +240,7 @@ const CourseTutorial: React.FC = () => {
                 onClick={completeTutorial}
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0 hover:bg-destructive/20"
+                className="h-6 w-6 p-0 hover:bg-white/20 text-white"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -192,10 +248,10 @@ const CourseTutorial: React.FC = () => {
 
             {/* Content */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-foreground mb-2">
+              <h3 className="text-lg font-bold text-white mb-2 drop-shadow-lg">
                 {currentTutorialStep?.title}
               </h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <p className="text-white/90 text-sm leading-relaxed drop-shadow">
                 {currentTutorialStep?.description}
               </p>
             </div>
@@ -206,7 +262,7 @@ const CourseTutorial: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full bg-background/50 backdrop-blur-sm hover:bg-background/70"
+                  className="w-full bg-white/20 backdrop-blur-sm hover:bg-white/30 border-white/30 text-white"
                 >
                   <Play className="h-3 w-3 mr-2" />
                   {currentTutorialStep.action}
@@ -221,20 +277,20 @@ const CourseTutorial: React.FC = () => {
                 disabled={currentStep === 0}
                 variant="ghost"
                 size="sm"
-                className="bg-background/30 backdrop-blur-sm hover:bg-background/50 disabled:opacity-50"
+                className="bg-white/20 backdrop-blur-sm hover:bg-white/30 disabled:opacity-50 text-white border-white/30"
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 Previous
               </Button>
               
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-white/80 font-medium">
                 {currentStep + 1} / {tutorialSteps.length}
               </div>
               
               <Button
                 onClick={nextStep}
                 size="sm"
-                className="bg-primary/80 backdrop-blur-sm hover:bg-primary/90"
+                className="bg-white/30 backdrop-blur-sm hover:bg-white/40 text-white border-white/30"
               >
                 {currentStep === tutorialSteps.length - 1 ? 'Complete' : 'Next'}
                 <ChevronRight className="h-4 w-4 ml-1" />
@@ -248,22 +304,22 @@ const CourseTutorial: React.FC = () => {
       {isCompleted && (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-96 max-w-[90vw]">
           <div className="
-            bg-gradient-to-br from-success/20 to-success/10 border-success/30
-            backdrop-blur-md rounded-2xl shadow-2xl border
-            p-6 text-center animate-scale-in
+            bg-gradient-to-br from-green-400 to-emerald-500 border-green-400 shadow-[0_0_40px_rgba(34,197,94,0.6)]
+            backdrop-blur-lg rounded-2xl border-2 bg-black/10
+            p-6 text-center animate-scale-in text-white
           ">
-            <div className="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Play className="h-8 w-8 text-success" />
+            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Play className="h-8 w-8 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">
+            <h3 className="text-xl font-bold text-white mb-2 drop-shadow-lg">
               Tutorial Completed!
             </h3>
-            <p className="text-muted-foreground text-sm mb-6">
+            <p className="text-white/90 text-sm mb-6 drop-shadow">
               You're now ready to manage your course content like a pro. Start creating amazing educational experiences!
             </p>
             <Button
               onClick={completeTutorial}
-              className="w-full bg-success hover:bg-success/90"
+              className="w-full bg-white/30 hover:bg-white/40 text-white border-white/30"
             >
               Start Managing Course
             </Button>
