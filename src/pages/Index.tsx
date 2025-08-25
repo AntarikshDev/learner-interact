@@ -277,17 +277,10 @@ const Index = () => {
         <AddLessonPopup
           isOpen={lessonPopupOpen}
           onClose={() => setLessonPopupOpen(false)}
-          onOpenVideoUpload={() => handleLessonUpload("video")}
-          onOpenAudioUpload={() => handleLessonUpload("audio")}
-          onOpenPdfUpload={() => handleLessonUpload("pdf")}
-          onOpenSlideUpload={() => handleLessonUpload("slide")}
-          onOpenLiveUpload={() => handleLessonUpload("live")}
-          onOpenLinkUpload={() => handleLessonUpload("link")}
-          onOpenArticleUpload={() => handleLessonUpload("article")}
-          onOpenAssignmentUpload={() => handleLessonUpload("assignment")}
-          onOpenSectionQuizUpload={() => handleLessonUpload("quiz")}
-          onOpenScormUpload={() => handleLessonUpload("scorm")}
-          lesson_id={123}
+          onSave={(lessonTitle) => {
+            console.log("Lesson saved:", lessonTitle);
+            setLessonPopupOpen(false);
+          }}
         />
 
         <AssetsLibraryPopup

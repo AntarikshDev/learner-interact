@@ -20,6 +20,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import ActionDropdown from "./ActionDropdown";
 import ContentViewerModal from "./ContentViewerModal";
 import ConfirmationDialog from "./ConfirmationDialog";
+import AddLessonPopup from "./AddLessonPopup";
+import AddContentPopup from "./AddContentPopup";
 import { useToast } from "@/hooks/use-toast";
 
 interface ContentItem {
@@ -58,6 +60,14 @@ const AdminCourseManagement: React.FC = () => {
     title: "",
     description: "",
     onConfirm: () => {},
+  });
+  const [addLessonDialog, setAddLessonDialog] = useState(false);
+  const [addContentDialog, setAddContentDialog] = useState<{
+    isOpen: boolean;
+    sectionId: number | null;
+  }>({
+    isOpen: false,
+    sectionId: null,
   });
 
   const [courseSections, setCourseSections] = useState<CourseSection[]>([
@@ -382,8 +392,16 @@ const AdminCourseManagement: React.FC = () => {
                       <Badge variant="secondary">
                         {section.content_items.length} items
                       </Badge>
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setAddContentDialog({ isOpen: true, sectionId: section.section_id });
+                        }}
+                      >
                         <Plus className="h-4 w-4" />
+                        Add Content
                       </Button>
                     </div>
                   </CollapsibleTrigger>
@@ -515,6 +533,44 @@ const AdminCourseManagement: React.FC = () => {
         title={confirmDialog.title}
         description={confirmDialog.description}
       />
+
+      <AddLessonPopup
+        isOpen={addLessonDialog}
+        onClose={() => setAddLessonDialog(false)}
+        onSave={(lessonTitle) => {
+          // Add lesson logic here
+          toast({
+            title: "Lesson Added",
+            description: `"${lessonTitle}" has been added to the course`,
+          });
+          setAddLessonDialog(false);
+        }}
+      />
+
+      <AddContentPopup
+        isOpen={addContentDialog.isOpen}
+        onClose={() => setAddContentDialog({ isOpen: false, sectionId: null })}
+        sectionId={addContentDialog.sectionId}
+        onSave={(contentData) => {
+          // Add content logic here
+          toast({
+            title: "Content Added",
+            description: `"${contentData.title}" has been added to the lesson`,
+          });
+          setAddContentDialog({ isOpen: false, sectionId: null });
+        }}
+      />
+
+      {/* Floating Add Lesson Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button
+          onClick={() => setAddLessonDialog(true)}
+          className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow bg-primary hover:bg-primary/90"
+          size="icon"
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
+      </div>
     </div>
   );
 };
