@@ -12,6 +12,7 @@ import InstructorDashboard from "@/components/InstructorDashboard";
 import SubAdminDashboard from "@/components/SubAdminDashboard";
 import StudentDashboard from "@/components/StudentDashboard";
 import StudentCourseDetails from "@/components/StudentCourseDetails";
+import AdminCourseManagement from "@/components/AdminCourseManagement";
 
 const Index = () => {
   const [popupOpen, setPopupOpen] = useState(false);
@@ -22,6 +23,7 @@ const Index = () => {
   const [brandingOpen, setBrandingOpen] = useState(false);
   const [activeDashboard, setActiveDashboard] = useState<string | null>(null);
   const [showCourseDetails, setShowCourseDetails] = useState(false);
+  const [showAdminCourse, setShowAdminCourse] = useState(false);
 
   const handleOpenPopup = (type: "reviewed" | "reject" | "message" | "history") => {
     setActionType(type);
@@ -53,6 +55,10 @@ const Index = () => {
 
   if (showCourseDetails) {
     return <StudentCourseDetails />;
+  }
+
+  if (showAdminCourse) {
+    return <AdminCourseManagement />;
   }
 
   return (
@@ -112,8 +118,8 @@ const Index = () => {
               initialFreeStatus={false}
               recordType="free"
               onView={() => console.log("View content")}
-              onToggleFree={(status) => console.log("Toggle free:", status)}
-              onTogglePublish={(status) => console.log("Toggle publish:", status)}
+              onToggleFree={(contentId, status) => console.log("Toggle free:", contentId, status)}
+              onTogglePublish={(contentId, status) => console.log("Toggle publish:", contentId, status)}
               initialPublishStatus={true}
               canEdit={true}
               isProcessing=""
@@ -173,6 +179,13 @@ const Index = () => {
               className="w-full max-w-md"
             >
               View Course Details Page
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowAdminCourse(true)}
+              className="w-full max-w-md"
+            >
+              View Admin Course Management
             </Button>
             <Button 
               variant="professional" 

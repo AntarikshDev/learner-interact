@@ -17,11 +17,12 @@ interface ActionDropdownProps {
   initialFreeStatus: boolean;
   recordType: ToggleButtonProps["recordType"];
   onView: () => void;
-  onToggleFree: (newStatus: boolean) => void;
-  onTogglePublish: (newStatus: boolean) => void;
+  onToggleFree: (contentId: number, newStatus: boolean) => void;
+  onTogglePublish: (contentId: number, newStatus: boolean) => void;
   initialPublishStatus: boolean;
   canEdit?: boolean;
   isProcessing: string;
+  onDelete?: () => void;
 }
 
 // Professional ToggleButton component
@@ -82,6 +83,7 @@ const ActionDropdown: React.FC<ActionDropdownProps> = ({
   initialPublishStatus,
   isProcessing,
   canEdit = false,
+  onDelete,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -103,7 +105,7 @@ const ActionDropdown: React.FC<ActionDropdownProps> = ({
   }, []);
 
   const handlePublishToggle = () => {
-    onTogglePublish(!initialPublishStatus);
+    onTogglePublish(contentId, !initialPublishStatus);
     setIsOpen(false);
   };
 
@@ -151,7 +153,7 @@ const ActionDropdown: React.FC<ActionDropdownProps> = ({
                   content_id={contentId}
                   initialStatus={initialFreeStatus}
                   recordType={recordType}
-                  onToggle={onToggleFree}
+                  onToggle={(newStatus) => onToggleFree(contentId, newStatus)}
                 />
               </div>
 
@@ -184,6 +186,27 @@ const ActionDropdown: React.FC<ActionDropdownProps> = ({
                         </div>
                       </>
                     )}
+                  </button>
+                </div>
+              )}
+
+              {/* Delete Action */}
+              {onDelete && (
+                <div className="border-t border-border">
+                  <button
+                    onClick={() => {
+                      onDelete();
+                      setIsOpen(false);
+                    }}
+                    className="flex w-full items-center px-4 py-3 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                  >
+                    <svg className="h-4 w-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <div className="flex-1 text-left">
+                      <p className="font-medium">Delete Content</p>
+                      <p className="text-xs text-muted-foreground">Remove permanently</p>
+                    </div>
                   </button>
                 </div>
               )}
