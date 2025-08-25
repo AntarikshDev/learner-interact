@@ -22,6 +22,7 @@ import ContentViewerModal from "./ContentViewerModal";
 import ConfirmationDialog from "./ConfirmationDialog";
 import AddLessonPopup from "./AddLessonPopup";
 import AddContentPopup from "./AddContentPopup";
+import CourseTutorial from "./CourseTutorial";
 import { useToast } from "@/hooks/use-toast";
 
 interface ContentItem {
@@ -561,15 +562,23 @@ const AdminCourseManagement: React.FC = () => {
         }}
       />
 
+      {/* Tutorial Component */}
+      <CourseTutorial />
+
       {/* Floating Add Lesson Button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-6 right-6 z-50 group">
         <Button
           onClick={() => setAddLessonDialog(true)}
-          className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow bg-primary hover:bg-primary/90"
+          className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-primary hover:bg-primary/90 hover:scale-105"
           size="icon"
         >
           <Plus className="h-6 w-6" />
         </Button>
+        <div className="absolute bottom-16 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+          <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg px-3 py-2 shadow-lg">
+            <p className="text-sm font-medium text-foreground whitespace-nowrap">Add New Lesson</p>
+          </div>
+        </div>
       </div>
     </div>
   );
