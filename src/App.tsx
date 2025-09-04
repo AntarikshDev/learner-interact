@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
 import InstituteAdminDashboard from "./components/InstituteAdminDashboard";
+import ProInstructorDashboard from "./components/ProInstructorDashboard";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/admin-dashboard" element={<InstituteAdminDashboard />} />
+          <Route path="/instructor-dashboard" element={<ProInstructorDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
