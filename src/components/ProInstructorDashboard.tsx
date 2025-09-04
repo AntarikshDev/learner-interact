@@ -14,7 +14,7 @@ import {
   BookOpen, Users, DollarSign, Star, Play, MessageSquare, Calendar, Plus, 
   Video, FileText, Upload, BarChart3, Clock, TrendingUp, Award, CheckCircle,
   Edit, Eye, Trash2, Settings, Bell, Search, Filter, Download, Send,
-  VideoIcon as Webcam, PenTool, Target, Zap, Globe, UserCheck, 
+  Camera as Webcam, PenTool, Target, Zap, Globe, UserCheck, 
   BookMarked, GraduationCap, Lightbulb, Timer, Activity,
   ChevronRight, ExternalLink, RefreshCw, MoreHorizontal
 } from "lucide-react";
