@@ -8,6 +8,7 @@ import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
 import InstituteAdminDashboard from "./components/InstituteAdminDashboard";
 import ProInstructorDashboard from "./components/ProInstructorDashboard";
+import UltimateSubAdminDashboard from "./components/UltimateSubAdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/admin-dashboard" element={<InstituteAdminDashboard />} />
           <Route path="/instructor-dashboard" element={<ProInstructorDashboard />} />
+          <Route path="/sub-admin-dashboard" element={<UltimateSubAdminDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
