@@ -40,6 +40,9 @@ const ProInstructorDashboard = () => {
   const [selectAllStudents, setSelectAllStudents] = useState(false);
   const [selectedStudentForChat, setSelectedStudentForChat] = useState(null);
   const [chatSearchQuery, setChatSearchQuery] = useState("");
+  const [selectedCourses, setSelectedCourses] = useState([]);
+  const [emailSearchQuery, setEmailSearchQuery] = useState("");
+  const [filteredStudents, setFilteredStudents] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -266,6 +269,7 @@ const ProInstructorDashboard = () => {
     { 
       id: 1,
       name: "Alice Johnson", 
+      email: "alice.johnson@email.com",
       course: "React Masterclass", 
       progress: 87, 
       avatar: "/placeholder.svg",
@@ -276,6 +280,7 @@ const ProInstructorDashboard = () => {
     { 
       id: 2,
       name: "Bob Chen", 
+      email: "bob.chen@email.com",
       course: "Full-Stack JS", 
       progress: 94, 
       avatar: "/placeholder.svg",
@@ -286,6 +291,7 @@ const ProInstructorDashboard = () => {
     { 
       id: 3,
       name: "Carol Rodriguez", 
+      email: "carol.rodriguez@email.com",
       course: "Python Data Science", 
       progress: 72, 
       avatar: "/placeholder.svg",
@@ -296,8 +302,9 @@ const ProInstructorDashboard = () => {
     { 
       id: 4,
       name: "David Kim", 
+      email: "david.kim@email.com",
       course: "UI/UX Design", 
-      progress: 91, 
+      progress: 91,
       avatar: "/placeholder.svg",
       lastActivity: "5 hours ago",
       status: "active",
@@ -1088,6 +1095,64 @@ const ProInstructorDashboard = () => {
                 rows={4}
               />
             </div>
+            
+            {/* Course Selection */}
+            <div>
+              <Label>Select Courses</Label>
+              <Select 
+                value={selectedCourses.join(',')} 
+                onValueChange={(value) => {
+                  if (value === 'all') {
+                    const allCourses = ['React Masterclass', 'Full-Stack JS', 'Python Data Science', 'UI/UX Design', 'Backend Development'];
+                    setSelectedCourses(allCourses);
+                  } else {
+                    const courses = value ? value.split(',').filter(Boolean) : [];
+                    setSelectedCourses(courses);
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select courses (multiple selection)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Courses</SelectItem>
+                  <SelectItem value="React Masterclass">React Masterclass</SelectItem>
+                  <SelectItem value="Full-Stack JS">Full-Stack JS</SelectItem>
+                  <SelectItem value="Python Data Science">Python Data Science</SelectItem>
+                  <SelectItem value="UI/UX Design">UI/UX Design</SelectItem>
+                  <SelectItem value="Backend Development">Backend Development</SelectItem>
+                </SelectContent>
+              </Select>
+              {selectedCourses.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {selectedCourses.map((course) => (
+                    <Badge key={course} variant="secondary" className="text-xs">
+                      {course}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-4 w-4 p-0 ml-1"
+                        onClick={() => setSelectedCourses(selectedCourses.filter(c => c !== course))}
+                      >
+                        ×
+                      </Button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Email Search Filter */}
+            <div>
+              <Label htmlFor="email-search">Search by Email</Label>
+              <Input 
+                id="email-search"
+                placeholder="Search student by email..." 
+                value={emailSearchQuery}
+                onChange={(e) => setEmailSearchQuery(e.target.value)}
+              />
+            </div>
+
             <div>
               <Label>Select Recipients</Label>
               <div className="border rounded-lg p-4 max-h-60 overflow-y-auto">
@@ -1098,8 +1163,16 @@ const ProInstructorDashboard = () => {
                     onCheckedChange={(checked) => {
                       const isChecked = checked === true;
                       setSelectAllStudents(isChecked);
+                      const currentFilteredStudents = recentStudents.filter(student => {
+                        const matchesCourse = selectedCourses.length === 0 || selectedCourses.includes(student.course);
+                        const matchesEmail = emailSearchQuery === '' || 
+                          student.email.toLowerCase().includes(emailSearchQuery.toLowerCase()) ||
+                          student.name.toLowerCase().includes(emailSearchQuery.toLowerCase());
+                        return matchesCourse && matchesEmail;
+                      });
+                      
                       if (isChecked) {
-                        setSelectedStudents(recentStudents.map(s => s.id));
+                        setSelectedStudents(currentFilteredStudents.map(s => s.id));
                       } else {
                         setSelectedStudents([]);
                       }
@@ -1107,29 +1180,50 @@ const ProInstructorDashboard = () => {
                   />
                   <Label htmlFor="select-all" className="font-medium">Select All Students</Label>
                 </div>
-                {recentStudents.map((student) => (
-                  <div key={student.id} className="flex items-center space-x-2 py-2">
-                    <Checkbox 
-                      id={`student-${student.id}`}
-                      checked={selectedStudents.includes(student.id)}
-                      onCheckedChange={(checked) => {
-                        if (checked === true) {
-                          setSelectedStudents([...selectedStudents, student.id]);
-                        } else {
-                          setSelectedStudents(selectedStudents.filter(id => id !== student.id));
-                        }
-                      }}
-                    />
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={student.avatar} />
-                      <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{student.name}</p>
-                      <p className="text-xs text-muted-foreground">{student.course}</p>
+                {recentStudents
+                  .filter(student => {
+                    const matchesCourse = selectedCourses.length === 0 || selectedCourses.includes(student.course);
+                    const matchesEmail = emailSearchQuery === '' || 
+                      student.email.toLowerCase().includes(emailSearchQuery.toLowerCase()) ||
+                      student.name.toLowerCase().includes(emailSearchQuery.toLowerCase());
+                    return matchesCourse && matchesEmail;
+                  })
+                  .map((student) => (
+                    <div key={student.id} className="flex items-center space-x-2 py-2">
+                      <Checkbox 
+                        id={`student-${student.id}`}
+                        checked={selectedStudents.includes(student.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked === true) {
+                            setSelectedStudents([...selectedStudents, student.id]);
+                          } else {
+                            setSelectedStudents(selectedStudents.filter(id => id !== student.id));
+                          }
+                        }}
+                      />
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={student.avatar} />
+                        <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{student.name}</p>
+                        <p className="text-xs text-muted-foreground">{student.email}</p>
+                        <p className="text-xs text-primary">{student.course}</p>
+                      </div>
                     </div>
+                  ))}
+                {recentStudents.filter(student => {
+                  const matchesCourse = selectedCourses.length === 0 || selectedCourses.includes(student.course);
+                  const matchesEmail = emailSearchQuery === '' || 
+                    student.email.toLowerCase().includes(emailSearchQuery.toLowerCase()) ||
+                    student.name.toLowerCase().includes(emailSearchQuery.toLowerCase());
+                  return matchesCourse && matchesEmail;
+                }).length === 0 && (
+                  <div className="text-center py-4 text-muted-foreground">
+                    <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No students found matching criteria</p>
                   </div>
-                ))}
+                )}
               </div>
               <p className="text-sm text-muted-foreground mt-2">
                 {selectedStudents.length} student(s) selected
