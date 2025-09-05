@@ -372,6 +372,8 @@ const StudentActivityPage: React.FC = () => {
   
   // Create Group states
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
+  const [isGroupChatModalOpen, setIsGroupChatModalOpen] = useState(false);
+  const [isStudentInfoModalOpen, setIsStudentInfoModalOpen] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [groupSearchTerm, setGroupSearchTerm] = useState("");
   const [selectedStudentsForGroup, setSelectedStudentsForGroup] = useState<string[]>([]);
@@ -445,6 +447,11 @@ const StudentActivityPage: React.FC = () => {
   const handleStartChat = (student) => {
     setSelectedStudent(student);
     setIsChatModalOpen(true);
+  };
+
+  const handleViewStudentInfo = (student) => {
+    setSelectedStudent(student);
+    setIsStudentInfoModalOpen(true);
   };
 
   const handleSendMessage = () => {
@@ -939,7 +946,25 @@ const StudentActivityPage: React.FC = () => {
                   {selectedStudent?.name?.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
-              Chat with {selectedStudent?.name}
+              <div className="flex-1">
+                <button 
+                  className="text-left hover:underline"
+                  onClick={() => handleViewStudentInfo(selectedStudent)}
+                >
+                  Chat with {selectedStudent?.name}
+                </button>
+                <div className="flex gap-2 mt-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setIsGroupChatModalOpen(true)}
+                    className="gap-2"
+                  >
+                    <Users className="h-4 w-4" />
+                    Group Chats
+                  </Button>
+                </div>
+              </div>
             </DialogTitle>
           </DialogHeader>
 
@@ -1179,6 +1204,7 @@ const StudentActivityPage: React.FC = () => {
                         <TableHead className="w-12">Select</TableHead>
                         <TableHead>Student</TableHead>
                         <TableHead>Course</TableHead>
+                        <TableHead>Topic</TableHead>
                         <TableHead>Not Attempted</TableHead>
                         <TableHead>Incorrect</TableHead>
                         <TableHead>Avg %</TableHead>
@@ -1211,6 +1237,7 @@ const StudentActivityPage: React.FC = () => {
                             </div>
                           </TableCell>
                           <TableCell className="text-sm">{student.course}</TableCell>
+                          <TableCell className="text-sm">{student.revision?.topic || 'N/A'}</TableCell>
                           <TableCell className="text-sm">{student.quiz?.notAttempted || 0}</TableCell>
                           <TableCell className="text-sm">{student.quiz?.incorrectAnswers || 0}</TableCell>
                           <TableCell className="text-sm">{student.quiz?.avgPercentage || 0}%</TableCell>
@@ -1235,6 +1262,108 @@ const StudentActivityPage: React.FC = () => {
                 Create Group ({selectedStudentsForGroup.length} students)
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Student Info Modal */}
+      <Dialog open={isStudentInfoModalOpen} onOpenChange={setIsStudentInfoModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={selectedStudent?.avatar} />
+                <AvatarFallback>
+                  {selectedStudent?.name?.split(' ').map(n => n[0]).join('')}
+                </AvatarFallback>
+              </Avatar>
+              {selectedStudent?.name} - Profile Details
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedStudent && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium">Email:</span>
+                  <div className="text-muted-foreground">{selectedStudent.email}</div>
+                </div>
+                <div>
+                  <span className="font-medium">Course:</span>
+                  <div className="text-muted-foreground">{selectedStudent.course}</div>
+                </div>
+                <div>
+                  <span className="font-medium">Total Study Time:</span>
+                  <div className="text-muted-foreground">{selectedStudent.totalTime}</div>
+                </div>
+                <div>
+                  <span className="font-medium">Latest Quiz Score:</span>
+                  <div className="text-muted-foreground">{selectedStudent.quiz.score}</div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div>
+                <h4 className="font-semibold mb-2">Groups</h4>
+                <div className="flex flex-wrap gap-2">
+                  {mockGroups
+                    .filter(group => group.studentIds.includes(selectedStudent.id))
+                    .map(group => (
+                      <Badge key={group.id} variant="outline">
+                        {group.name}
+                      </Badge>
+                    ))}
+                  {mockGroups.filter(group => group.studentIds.includes(selectedStudent.id)).length === 0 && (
+                    <span className="text-sm text-muted-foreground">Not in any group</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Group Chat Modal */}
+      <Dialog open={isGroupChatModalOpen} onOpenChange={setIsGroupChatModalOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Select Group to Chat
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-3">
+            {mockGroups.map(group => (
+              <Card key={group.id} className="p-4 hover:bg-muted/50 cursor-pointer transition-colors">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">{group.name}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {group.studentIds.length} students
+                    </p>
+                  </div>
+                  <Button 
+                    size="sm"
+                    onClick={() => {
+                      setIsGroupChatModalOpen(false);
+                      toast({
+                        title: "Group Chat",
+                        description: `Opening chat for ${group.name}`
+                      });
+                    }}
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                  </Button>
+                </div>
+              </Card>
+            ))}
+            {mockGroups.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                No groups created yet
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
