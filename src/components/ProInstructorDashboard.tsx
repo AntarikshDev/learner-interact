@@ -14,7 +14,7 @@ import {
   BookOpen, Users, DollarSign, Star, Play, MessageSquare, Calendar, Plus, 
   Video, FileText, Upload, BarChart3, Clock, TrendingUp, Award, CheckCircle,
   Edit, Eye, Trash2, Settings, Bell, Search, Filter, Download, Send,
-  Camera as Webcam, PenTool, Target, Zap, Globe, UserCheck, 
+  Camera as Webcam, PenTool, Target, Zap, Globe, UserCheck, MessageCircle,
   BookMarked, GraduationCap, Lightbulb, Timer, Activity,
   ChevronRight, ExternalLink, RefreshCw, MoreHorizontal
 } from "lucide-react";
@@ -28,9 +28,11 @@ const ProInstructorDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [isCreateCourseOpen, setIsCreateCourseOpen] = useState(false);
-  const [isScheduleClassOpen, setIsScheduleClassOpen] = useState(false);
+  const [isStudentChatOpen, setIsStudentChatOpen] = useState(false);
   const [isGradeAssignmentOpen, setIsGradeAssignmentOpen] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
+  const [selectedStudentForChat, setSelectedStudentForChat] = useState(null);
+  const [chatSearchQuery, setChatSearchQuery] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -95,12 +97,12 @@ const ProInstructorDashboard = () => {
       description: "Add video content to existing courses"
     },
     { 
-      title: "Schedule Live Class", 
-      icon: Webcam, 
+      title: "Chat with Student", 
+      icon: MessageCircle, 
       color: "bg-gradient-zoho", 
-      action: () => setIsScheduleClassOpen(true),
-      shortcut: "Ctrl+L",
-      description: "Set up your next live session"
+      action: () => setIsStudentChatOpen(true),
+      shortcut: "Ctrl+C",
+      description: "Quick chat with any student"
     },
     { 
       title: "Create Assignment", 
@@ -327,13 +329,6 @@ const ProInstructorDashboard = () => {
     setIsCreateCourseOpen(false);
   };
 
-  const handleScheduleClass = () => {
-    toast({
-      title: "Class Scheduled!",
-      description: "Your live class has been scheduled and students will be notified.",
-    });
-    setIsScheduleClassOpen(false);
-  };
 
   const formatTime = (date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -764,56 +759,6 @@ const ProInstructorDashboard = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Schedule Class Dialog */}
-      <Dialog open={isScheduleClassOpen} onOpenChange={setIsScheduleClassOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Schedule Live Class</DialogTitle>
-            <DialogDescription>
-              Set up a new live session for your students.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="classTitle">Class Title</Label>
-              <Input id="classTitle" placeholder="Enter class topic..." />
-            </div>
-            <div>
-              <Label htmlFor="course">Course</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select course" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="react">React Masterclass</SelectItem>
-                  <SelectItem value="js">Full-Stack JS</SelectItem>
-                  <SelectItem value="python">Python Data Science</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="date">Date</Label>
-                <Input id="date" type="date" />
-              </div>
-              <div>
-                <Label htmlFor="time">Time</Label>
-                <Input id="time" type="time" />
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="duration">Duration (minutes)</Label>
-              <Input id="duration" type="number" placeholder="90" />
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsScheduleClassOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleScheduleClass}>Schedule Class</Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Analytics Dialog */}
       <Dialog open={isAnalyticsOpen} onOpenChange={setIsAnalyticsOpen}>
@@ -895,6 +840,92 @@ const ProInstructorDashboard = () => {
                 Close
               </Button>
               <Button>Save Grades</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Student Chat Dialog */}
+      <Dialog open={isStudentChatOpen} onOpenChange={setIsStudentChatOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Chat with Student</DialogTitle>
+            <DialogDescription>
+              Search and start a quick chat with any student.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="studentSearch">Search Student</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  id="studentSearch"
+                  placeholder="Search by name or email..." 
+                  className="pl-10"
+                  value={chatSearchQuery}
+                  onChange={(e) => setChatSearchQuery(e.target.value)}
+                />
+              </div>
+            </div>
+            
+            {/* Student List */}
+            <div className="max-h-60 overflow-y-auto space-y-2">
+              {recentStudents
+                .filter(student => 
+                  student.name.toLowerCase().includes(chatSearchQuery.toLowerCase()) ||
+                  student.course.toLowerCase().includes(chatSearchQuery.toLowerCase())
+                )
+                .map((student) => (
+                  <div 
+                    key={student.id}
+                    className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors"
+                    onClick={() => {
+                      setSelectedStudentForChat(student);
+                      setIsStudentChatOpen(false);
+                      toast({
+                        title: "Opening Chat",
+                        description: `Starting conversation with ${student.name}...`,
+                      });
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={student.avatar} />
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          {student.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{student.name}</p>
+                        <p className="text-xs text-muted-foreground">{student.course}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant={student.status === 'active' ? 'default' : 'secondary'} className="text-xs">
+                            {student.status}
+                          </Badge>
+                          <span className="text-xs text-primary">Progress: {student.progress}%</span>
+                        </div>
+                      </div>
+                      <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            {chatSearchQuery && recentStudents.filter(student => 
+              student.name.toLowerCase().includes(chatSearchQuery.toLowerCase()) ||
+              student.course.toLowerCase().includes(chatSearchQuery.toLowerCase())
+            ).length === 0 && (
+              <div className="text-center py-4 text-muted-foreground">
+                <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No students found</p>
+              </div>
+            )}
+            
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsStudentChatOpen(false)}>
+                Cancel
+              </Button>
             </div>
           </div>
         </DialogContent>
