@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import InstituteAdminDashboard from "./components/InstituteAdminDashboard";
 import ProInstructorDashboard from "./components/ProInstructorDashboard";
 import UltimateSubAdminDashboard from "./components/UltimateSubAdminDashboard";
+import StudentActivityPage from "./pages/StudentActivityPage";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/admin-dashboard" element={<InstituteAdminDashboard />} />
           <Route path="/instructor-dashboard" element={<ProInstructorDashboard />} />
           <Route path="/sub-admin-dashboard" element={<UltimateSubAdminDashboard />} />
+          <Route path="/student-activity" element={<StudentActivityPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

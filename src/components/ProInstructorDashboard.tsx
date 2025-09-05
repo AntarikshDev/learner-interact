@@ -19,8 +19,12 @@ import {
   ChevronRight, ExternalLink, RefreshCw, MoreHorizontal
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const ProInstructorDashboard = () => {
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [isCreateCourseOpen, setIsCreateCourseOpen] = useState(false);
@@ -28,7 +32,6 @@ const ProInstructorDashboard = () => {
   const [isGradeAssignmentOpen, setIsGradeAssignmentOpen] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const { toast } = useToast();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -644,9 +647,13 @@ const ProInstructorDashboard = () => {
                   <Filter className="h-4 w-4 mr-2" />
                   Filter
                 </Button>
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate("/student-activity")}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  View All
                 </Button>
               </div>
             </div>
