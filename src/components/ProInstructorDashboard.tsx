@@ -10,13 +10,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   BookOpen, Users, DollarSign, Star, Play, MessageSquare, Calendar, Plus, 
   Video, FileText, Upload, BarChart3, Clock, TrendingUp, Award, CheckCircle,
   Edit, Eye, Trash2, Settings, Bell, Search, Filter, Download, Send,
   Camera as Webcam, PenTool, Target, Zap, Globe, UserCheck, MessageCircle,
-  BookMarked, GraduationCap, Lightbulb, Timer, Activity,
-  ChevronRight, ExternalLink, RefreshCw, MoreHorizontal
+  BookMarked, GraduationCap, Lightbulb, Timer, Activity, AlertTriangle,
+  ChevronRight, ExternalLink, RefreshCw, MoreHorizontal, Check
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -31,6 +32,12 @@ const ProInstructorDashboard = () => {
   const [isStudentChatOpen, setIsStudentChatOpen] = useState(false);
   const [isGradeAssignmentOpen, setIsGradeAssignmentOpen] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
+  const [isCreateQuizOpen, setIsCreateQuizOpen] = useState(false);
+  const [isUploadAssetOpen, setIsUploadAssetOpen] = useState(false);
+  const [isConcernTicketOpen, setIsConcernTicketOpen] = useState(false);
+  const [isAnnouncementOpen, setIsAnnouncementOpen] = useState(false);
+  const [selectedStudents, setSelectedStudents] = useState([]);
+  const [selectAllStudents, setSelectAllStudents] = useState(false);
   const [selectedStudentForChat, setSelectedStudentForChat] = useState(null);
   const [chatSearchQuery, setChatSearchQuery] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -81,20 +88,20 @@ const ProInstructorDashboard = () => {
 
   const quickActions = [
     { 
-      title: "Create New Course", 
-      icon: Plus, 
+      title: "Create Quiz (Live/General)", 
+      icon: BookMarked, 
       color: "bg-gradient-primary", 
-      action: () => setIsCreateCourseOpen(true),
-      shortcut: "Ctrl+N",
-      description: "Start building your next course"
+      action: () => setIsCreateQuizOpen(true),
+      shortcut: "Ctrl+Q",
+      description: "Create live or general quiz in asset library"
     },
     { 
-      title: "Upload Video Lesson", 
-      icon: Video, 
+      title: "Upload to Asset Library", 
+      icon: Upload, 
       color: "bg-gradient-accent", 
-      action: () => toast({ title: "Upload Video", description: "Video upload dialog opening..." }),
+      action: () => setIsUploadAssetOpen(true),
       shortcut: "Ctrl+U",
-      description: "Add video content to existing courses"
+      description: "Upload PDF, Video, Assignment to asset library"
     },
     { 
       title: "Chat with Student", 
@@ -105,28 +112,28 @@ const ProInstructorDashboard = () => {
       description: "Quick chat with any student"
     },
     { 
-      title: "Create Assignment", 
-      icon: PenTool, 
-      color: "bg-purple-500", 
-      action: () => toast({ title: "Create Assignment", description: "Assignment builder opening..." }),
-      shortcut: "Ctrl+A",
-      description: "Design new assignments & projects"
+      title: "Raise Concern with Sub-Admin", 
+      icon: AlertTriangle, 
+      color: "bg-red-500", 
+      action: () => setIsConcernTicketOpen(true),
+      shortcut: "Ctrl+T",
+      description: "Send a ticket to sub admin for concerns"
     },
     { 
-      title: "Manage Students", 
-      icon: UserCheck, 
-      color: "bg-orange-500", 
-      action: () => toast({ title: "Student Management", description: "Navigating to student management..." }),
-      shortcut: "Ctrl+S",
-      description: "View & manage enrolled students"
-    },
-    { 
-      title: "Analytics Dashboard", 
+      title: "Student Performance", 
       icon: BarChart3, 
       color: "bg-teal-500", 
-      action: () => setIsAnalyticsOpen(true),
-      shortcut: "Ctrl+D",
-      description: "Detailed performance metrics"
+      action: () => navigate('/student-performance'),
+      shortcut: "Ctrl+P",
+      description: "Complete analytics with drill downs and filters"
+    },
+    { 
+      title: "Quick Announcement", 
+      icon: Bell, 
+      color: "bg-orange-500", 
+      action: () => setIsAnnouncementOpen(true),
+      shortcut: "Ctrl+A",
+      description: "Send announcement to course-wise students"
     },
   ];
 
@@ -925,6 +932,225 @@ const ProInstructorDashboard = () => {
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setIsStudentChatOpen(false)}>
                 Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Quiz Dialog */}
+      <Dialog open={isCreateQuizOpen} onOpenChange={setIsCreateQuizOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create Quiz</DialogTitle>
+            <DialogDescription>Create a live or general quiz for your asset library</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="quiz-type">Quiz Type</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select quiz type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="live">Live Quiz</SelectItem>
+                  <SelectItem value="general">General Quiz</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="quiz-title">Quiz Title</Label>
+              <Input id="quiz-title" placeholder="Enter quiz title" />
+            </div>
+            <div>
+              <Label htmlFor="quiz-course">Course</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select course" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="react">React Masterclass</SelectItem>
+                  <SelectItem value="fullstack">Full-Stack JS</SelectItem>
+                  <SelectItem value="python">Python Data Science</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsCreateQuizOpen(false)}>Cancel</Button>
+              <Button onClick={() => { setIsCreateQuizOpen(false); toast({ title: "Quiz Created", description: "Quiz added to asset library successfully!" }); }}>
+                Create Quiz
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Upload Asset Dialog */}
+      <Dialog open={isUploadAssetOpen} onOpenChange={setIsUploadAssetOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Upload to Asset Library</DialogTitle>
+            <DialogDescription>Upload PDF, Video, or Assignment files</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="asset-type">Asset Type</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select asset type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pdf">PDF Document</SelectItem>
+                  <SelectItem value="video">Video</SelectItem>
+                  <SelectItem value="assignment">Assignment</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="asset-title">Title</Label>
+              <Input id="asset-title" placeholder="Enter asset title" />
+            </div>
+            <div>
+              <Label htmlFor="asset-file">File Upload</Label>
+              <Input id="asset-file" type="file" accept=".pdf,.mp4,.mov,.avi,.doc,.docx" />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsUploadAssetOpen(false)}>Cancel</Button>
+              <Button onClick={() => { setIsUploadAssetOpen(false); toast({ title: "Asset Uploaded", description: "File uploaded to asset library successfully!" }); }}>
+                Upload
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Concern Ticket Dialog */}
+      <Dialog open={isConcernTicketOpen} onOpenChange={setIsConcernTicketOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Raise Concern with Sub-Admin</DialogTitle>
+            <DialogDescription>Send a ticket to the sub-admin regarding your concerns</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="concern-subject">Subject</Label>
+              <Input id="concern-subject" placeholder="Brief description of the concern" />
+            </div>
+            <div>
+              <Label htmlFor="concern-priority">Priority</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="concern-description">Detailed Description</Label>
+              <Textarea 
+                id="concern-description" 
+                placeholder="Provide detailed information about your concern..." 
+                rows={4}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsConcernTicketOpen(false)}>Cancel</Button>
+              <Button onClick={() => { setIsConcernTicketOpen(false); toast({ title: "Ticket Sent", description: "Your concern has been sent to the sub-admin." }); }}>
+                Send Ticket
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Quick Announcement Dialog */}
+      <Dialog open={isAnnouncementOpen} onOpenChange={setIsAnnouncementOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Quick Announcement</DialogTitle>
+            <DialogDescription>Send announcement to course-wise students</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="announcement-title">Announcement Title</Label>
+              <Input id="announcement-title" placeholder="Enter announcement title" />
+            </div>
+            <div>
+              <Label htmlFor="announcement-message">Message</Label>
+              <Textarea 
+                id="announcement-message" 
+                placeholder="Write your announcement message..." 
+                rows={4}
+              />
+            </div>
+            <div>
+              <Label>Select Recipients</Label>
+              <div className="border rounded-lg p-4 max-h-60 overflow-y-auto">
+                <div className="flex items-center space-x-2 mb-3 pb-2 border-b">
+                  <Checkbox 
+                    id="select-all"
+                    checked={selectAllStudents}
+                    onCheckedChange={(checked) => {
+                      const isChecked = checked === true;
+                      setSelectAllStudents(isChecked);
+                      if (isChecked) {
+                        setSelectedStudents(recentStudents.map(s => s.id));
+                      } else {
+                        setSelectedStudents([]);
+                      }
+                    }}
+                  />
+                  <Label htmlFor="select-all" className="font-medium">Select All Students</Label>
+                </div>
+                {recentStudents.map((student) => (
+                  <div key={student.id} className="flex items-center space-x-2 py-2">
+                    <Checkbox 
+                      id={`student-${student.id}`}
+                      checked={selectedStudents.includes(student.id)}
+                      onCheckedChange={(checked) => {
+                        if (checked === true) {
+                          setSelectedStudents([...selectedStudents, student.id]);
+                        } else {
+                          setSelectedStudents(selectedStudents.filter(id => id !== student.id));
+                        }
+                      }}
+                    />
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={student.avatar} />
+                      <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{student.name}</p>
+                      <p className="text-xs text-muted-foreground">{student.course}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                {selectedStudents.length} student(s) selected
+              </p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsAnnouncementOpen(false)}>Cancel</Button>
+              <Button 
+                onClick={() => { 
+                  setIsAnnouncementOpen(false); 
+                  toast({ 
+                    title: "Announcement Sent", 
+                    description: `Announcement sent to ${selectedStudents.length} students.` 
+                  }); 
+                  setSelectedStudents([]);
+                  setSelectAllStudents(false);
+                }}
+                disabled={selectedStudents.length === 0}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Send Announcement
               </Button>
             </div>
           </div>
