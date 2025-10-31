@@ -33,6 +33,7 @@ const ProInstructorDashboard = () => {
   const [isGradeAssignmentOpen, setIsGradeAssignmentOpen] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
   const [isCreateQuizOpen, setIsCreateQuizOpen] = useState(false);
+  const [quizType, setQuizType] = useState("");
   const [isUploadAssetOpen, setIsUploadAssetOpen] = useState(false);
   const [isConcernTicketOpen, setIsConcernTicketOpen] = useState(false);
   const [isAnnouncementOpen, setIsAnnouncementOpen] = useState(false);
@@ -946,48 +947,93 @@ const ProInstructorDashboard = () => {
       </Dialog>
 
       {/* Create Quiz Dialog */}
-      <Dialog open={isCreateQuizOpen} onOpenChange={setIsCreateQuizOpen}>
+      <Dialog open={isCreateQuizOpen} onOpenChange={(open) => { setIsCreateQuizOpen(open); if (!open) setQuizType(""); }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Create Quiz</DialogTitle>
-            <DialogDescription>Create a live or general quiz for your asset library</DialogDescription>
+            <DialogTitle>
+              {quizType === "live" ? "Live Quiz Options" : quizType === "general" ? "General Quiz Options" : "Create Quiz"}
+            </DialogTitle>
+            <DialogDescription>
+              {quizType ? "Fill in the quiz details" : "Select the type of quiz you want to create"}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="quiz-type">Quiz Type</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select quiz type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="live">Live Quiz</SelectItem>
-                  <SelectItem value="general">General Quiz</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="quiz-title">Quiz Title</Label>
-              <Input id="quiz-title" placeholder="Enter quiz title" />
-            </div>
-            <div>
-              <Label htmlFor="quiz-course">Asset Library</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select course" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="react">React Masterclass</SelectItem>
-                  <SelectItem value="fullstack">Full-Stack JS</SelectItem>
-                  <SelectItem value="python">Python Data Science</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsCreateQuizOpen(false)}>Cancel</Button>
-              <Button onClick={() => { setIsCreateQuizOpen(false); toast({ title: "Quiz Created", description: "Quiz added to asset library successfully!" }); }}>
-                Create Quiz
-              </Button>
-            </div>
+            {!quizType ? (
+              <div>
+                <Label htmlFor="quiz-type">Quiz Type</Label>
+                <Select value={quizType} onValueChange={setQuizType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select quiz type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="live">Live Quiz</SelectItem>
+                    <SelectItem value="general">General Quiz</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : quizType === "general" ? (
+              <>
+                <div>
+                  <Label htmlFor="quiz-title">Quiz Title</Label>
+                  <Input id="quiz-title" placeholder="Enter quiz title" />
+                </div>
+                <div>
+                  <Label htmlFor="time-limit">Time Limit (in minutes)</Label>
+                  <Input id="time-limit" type="number" placeholder="Enter time limit" />
+                </div>
+                <div>
+                  <Label htmlFor="attempt">Attempt</Label>
+                  <Input id="attempt" type="number" placeholder="Enter Attempt limit" />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="is-free" />
+                  <Label htmlFor="is-free" className="cursor-pointer">Is Free</Label>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setQuizType("")}>Cancel</Button>
+                  <Button onClick={() => { 
+                    setIsCreateQuizOpen(false); 
+                    setQuizType("");
+                    toast({ title: "Quiz Created", description: "General quiz created successfully!" }); 
+                  }}>
+                    Create Quiz
+                  </Button>
+                </div>
+              </>
+            ) : quizType === "live" ? (
+              <>
+                <div>
+                  <Label htmlFor="quiz-title">Quiz Title</Label>
+                  <Input id="quiz-title" placeholder="Enter quiz title" />
+                </div>
+                <div>
+                  <Label htmlFor="time-limit">Time Limit (in minutes)</Label>
+                  <Input id="time-limit" type="number" placeholder="Enter time limit" />
+                </div>
+                <div>
+                  <Label htmlFor="live-time-from">Live Time From</Label>
+                  <Input id="live-time-from" type="datetime-local" />
+                </div>
+                <div>
+                  <Label htmlFor="live-time-to">Live Time To</Label>
+                  <Input id="live-time-to" type="datetime-local" />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="is-free-live" />
+                  <Label htmlFor="is-free-live" className="cursor-pointer">Is Free</Label>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setQuizType("")}>Cancel</Button>
+                  <Button onClick={() => { 
+                    setIsCreateQuizOpen(false); 
+                    setQuizType("");
+                    toast({ title: "Quiz Created", description: "Live quiz scheduled successfully!" }); 
+                  }}>
+                    Create Quiz
+                  </Button>
+                </div>
+              </>
+            ) : null}
           </div>
         </DialogContent>
       </Dialog>
