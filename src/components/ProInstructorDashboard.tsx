@@ -970,7 +970,7 @@ const ProInstructorDashboard = () => {
               <Input id="quiz-title" placeholder="Enter quiz title" />
             </div>
             <div>
-              <Label htmlFor="quiz-course">Course</Label>
+              <Label htmlFor="quiz-course">Asset Library</Label>
               <Select>
                 <SelectTrigger>
                   <SelectValue placeholder="Select course" />
