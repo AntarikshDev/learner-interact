@@ -411,35 +411,35 @@ const InstituteAdminDashboard: React.FC = () => {
       <main className="p-6 space-y-6">
         {/* Date Range Filter */}
         <Card className="bg-gradient-to-r from-card via-card to-accent/5">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between flex-wrap gap-4">
+          <CardContent className="p-3.5">
+            <div className="flex items-center justify-between flex-wrap gap-3">
               {/* Date Range Display */}
-              <div className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <CalendarIcon className="h-5 w-5 text-primary" />
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-primary/10">
+                    <CalendarIcon className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Start Date</p>
-                    <p className="text-base font-bold">{dateRange.start}</p>
+                    <p className="text-[10px] font-medium text-muted-foreground mb-0.5">Start Date</p>
+                    <p className="text-sm font-bold">{dateRange.start}</p>
                   </div>
                 </div>
                 
-                <div className="h-12 w-px bg-border" />
+                <div className="h-9 w-px bg-border" />
                 
                 <div>
-                  <p className="text-xs font-medium text-muted-foreground mb-1">End Date</p>
-                  <p className="text-base font-bold">{dateRange.end}</p>
+                  <p className="text-[10px] font-medium text-muted-foreground mb-0.5">End Date</p>
+                  <p className="text-sm font-bold">{dateRange.end}</p>
                 </div>
               </div>
               
               {/* Calendar Picker */}
               <Popover open={dateRangeOpen} onOpenChange={setDateRangeOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="gap-2">
-                    <CalendarIcon className="h-4 w-4" />
+                  <Button variant="outline" className="gap-1.5 h-8 text-sm px-3">
+                    <CalendarIcon className="h-3.5 w-3.5" />
                     Select Dates
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-3.5 w-3.5" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 bg-card z-50" align="end">
@@ -541,27 +541,27 @@ const InstituteAdminDashboard: React.FC = () => {
         </Card>
 
         {/* KPI Stats Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {stats.map((stat, index) => (
-            <Card key={index} className="transition-all hover:shadow-lg hover:scale-[1.02] border-l-4" style={{ borderLeftColor: stat.color.includes('blue') ? 'hsl(var(--chart-2))' : stat.color.includes('green') ? 'hsl(var(--chart-1))' : stat.color.includes('purple') ? 'hsl(var(--chart-3))' : stat.color.includes('orange') ? 'hsl(var(--chart-4))' : stat.color.includes('red') ? 'hsl(var(--chart-5))' : 'hsl(var(--chart-3))' }}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
-                <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.color.includes('blue') ? 'from-blue-500/10 to-blue-500/5' : stat.color.includes('green') ? 'from-green-500/10 to-green-500/5' : stat.color.includes('purple') ? 'from-purple-500/10 to-purple-500/5' : stat.color.includes('orange') ? 'from-orange-500/10 to-orange-500/5' : stat.color.includes('red') ? 'from-red-500/10 to-red-500/5' : 'from-indigo-500/10 to-indigo-500/5'}`}>
-                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
+            <Card key={index} className="transition-all hover:shadow-lg hover:scale-[1.02] border-l-[3px]" style={{ borderLeftColor: stat.color.includes('blue') ? 'hsl(var(--chart-2))' : stat.color.includes('green') ? 'hsl(var(--chart-1))' : stat.color.includes('purple') ? 'hsl(var(--chart-3))' : stat.color.includes('orange') ? 'hsl(var(--chart-4))' : stat.color.includes('red') ? 'hsl(var(--chart-5))' : 'hsl(var(--chart-3))' }}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+                <CardTitle className="text-xs font-medium text-muted-foreground">{stat.title}</CardTitle>
+                <div className={`p-1.5 rounded-lg bg-gradient-to-br ${stat.color.includes('blue') ? 'from-blue-500/10 to-blue-500/5' : stat.color.includes('green') ? 'from-green-500/10 to-green-500/5' : stat.color.includes('purple') ? 'from-purple-500/10 to-purple-500/5' : stat.color.includes('orange') ? 'from-orange-500/10 to-orange-500/5' : stat.color.includes('red') ? 'from-red-500/10 to-red-500/5' : 'from-indigo-500/10 to-indigo-500/5'}`}>
+                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold mb-2">{stat.value}</div>
-                <div className="flex items-center gap-2">
+              <CardContent className="px-3 pb-3">
+                <div className="text-2xl font-bold mb-1.5">{stat.value}</div>
+                <div className="flex items-center gap-1.5">
                   {stat.trend === "up" ? (
-                    <ArrowUpRight className="h-4 w-4 text-emerald-600" />
+                    <ArrowUpRight className="h-3.5 w-3.5 text-emerald-600" />
                   ) : (
-                    <ArrowDownRight className="h-4 w-4 text-destructive" />
+                    <ArrowDownRight className="h-3.5 w-3.5 text-destructive" />
                   )}
-                  <span className={`text-sm font-semibold ${stat.trend === "up" ? "text-emerald-600" : "text-destructive"}`}>
+                  <span className={`text-xs font-semibold ${stat.trend === "up" ? "text-emerald-600" : "text-destructive"}`}>
                     {stat.change}
                   </span>
-                  <span className="text-xs text-muted-foreground">vs previous period</span>
+                  <span className="text-[10px] text-muted-foreground">vs previous period</span>
                 </div>
               </CardContent>
             </Card>
@@ -570,8 +570,8 @@ const InstituteAdminDashboard: React.FC = () => {
 
         {/* Quick Actions */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <h2 className="text-lg font-semibold mb-3">Quick Actions</h2>
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             {quickActions.map((action, index) => (
               <Card 
                 key={index} 
@@ -579,14 +579,14 @@ const InstituteAdminDashboard: React.FC = () => {
                 onClick={action.action}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <CardContent className="p-6">
-                  <div className="flex flex-col items-center text-center space-y-3">
-                    <div className={`p-4 rounded-2xl transition-all ${action.color}`}>
-                      <action.icon className="h-8 w-8" />
+                <CardContent className="p-4">
+                  <div className="flex flex-col items-center text-center space-y-2.5">
+                    <div className={`p-3 rounded-2xl transition-all ${action.color}`}>
+                      <action.icon className="h-6 w-6" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg mb-1">{action.title}</h3>
-                      <p className="text-sm text-muted-foreground">{action.description}</p>
+                      <h3 className="font-semibold text-sm mb-0.5">{action.title}</h3>
+                      <p className="text-xs text-muted-foreground">{action.description}</p>
                     </div>
                   </div>
                 </CardContent>
