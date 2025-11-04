@@ -543,25 +543,25 @@ const InstituteAdminDashboard: React.FC = () => {
         {/* KPI Stats Grid */}
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {stats.map((stat, index) => (
-            <Card key={index} className="transition-all hover:shadow-lg hover:scale-[1.02] border-l-[3px]" style={{ borderLeftColor: stat.color.includes('blue') ? 'hsl(var(--chart-2))' : stat.color.includes('green') ? 'hsl(var(--chart-1))' : stat.color.includes('purple') ? 'hsl(var(--chart-3))' : stat.color.includes('orange') ? 'hsl(var(--chart-4))' : stat.color.includes('red') ? 'hsl(var(--chart-5))' : 'hsl(var(--chart-3))' }}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-                <CardTitle className="text-xs font-medium text-muted-foreground">{stat.title}</CardTitle>
-                <div className={`p-1.5 rounded-lg bg-gradient-to-br ${stat.color.includes('blue') ? 'from-blue-500/10 to-blue-500/5' : stat.color.includes('green') ? 'from-green-500/10 to-green-500/5' : stat.color.includes('purple') ? 'from-purple-500/10 to-purple-500/5' : stat.color.includes('orange') ? 'from-orange-500/10 to-orange-500/5' : stat.color.includes('red') ? 'from-red-500/10 to-red-500/5' : 'from-indigo-500/10 to-indigo-500/5'}`}>
+            <Card key={index} className="transition-all hover:shadow-md hover:scale-[1.01] border-l-[3px] bg-gradient-to-br from-card to-card/50" style={{ borderLeftColor: stat.color.includes('blue') ? 'hsl(var(--chart-2))' : stat.color.includes('green') ? 'hsl(var(--chart-1))' : stat.color.includes('purple') ? 'hsl(var(--chart-3))' : stat.color.includes('orange') ? 'hsl(var(--chart-4))' : stat.color.includes('red') ? 'hsl(var(--chart-5))' : 'hsl(var(--chart-3))' }}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
+                <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{stat.title}</CardTitle>
+                <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.color.includes('blue') ? 'from-blue-500/10 to-blue-500/5' : stat.color.includes('green') ? 'from-green-500/10 to-green-500/5' : stat.color.includes('purple') ? 'from-purple-500/10 to-purple-500/5' : stat.color.includes('orange') ? 'from-orange-500/10 to-orange-500/5' : stat.color.includes('red') ? 'from-red-500/10 to-red-500/5' : 'from-indigo-500/10 to-indigo-500/5'}`}>
                   <stat.icon className={`h-4 w-4 ${stat.color}`} />
                 </div>
               </CardHeader>
-              <CardContent className="px-3 pb-3">
-                <div className="text-2xl font-bold mb-1.5">{stat.value}</div>
+              <CardContent className="px-4 pb-4">
+                <div className="text-xl font-semibold mb-2 tracking-tight">{stat.value}</div>
                 <div className="flex items-center gap-1.5">
                   {stat.trend === "up" ? (
-                    <ArrowUpRight className="h-3.5 w-3.5 text-emerald-600" />
+                    <ArrowUpRight className="h-3 w-3 text-emerald-600" />
                   ) : (
-                    <ArrowDownRight className="h-3.5 w-3.5 text-destructive" />
+                    <ArrowDownRight className="h-3 w-3 text-destructive" />
                   )}
-                  <span className={`text-xs font-semibold ${stat.trend === "up" ? "text-emerald-600" : "text-destructive"}`}>
+                  <span className={`text-xs font-medium ${stat.trend === "up" ? "text-emerald-600" : "text-destructive"}`}>
                     {stat.change}
                   </span>
-                  <span className="text-[10px] text-muted-foreground">vs previous period</span>
+                  <span className="text-[10px] text-muted-foreground">vs previous</span>
                 </div>
               </CardContent>
             </Card>
