@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   Bell,
@@ -25,24 +26,38 @@ import {
   Play,
   Plus,
   Filter,
+  Megaphone,
+  ArrowUpRight,
+  ArrowDownRight,
+  User,
+  CreditCard,
+  LogOut,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
+type DateFilter = "today" | "7days" | "15days" | "30days" | "90days" | "365days";
+type TransactionFilter = "all" | "completed" | "pending" | "failed";
+
 interface DashboardStats {
-  totalSales: number;
-  activeUsers: number;
-  totalCourses: number;
-  newSignups: number;
-  liveClasses: number;
-  quizAttempts: number;
+  title: string;
+  value: string;
+  change: string;
+  trend: "up" | "down";
+  icon: React.ElementType;
+  color: string;
 }
 
 interface QuickAction {
@@ -75,121 +90,79 @@ interface LiveClass {
 
 const InstituteAdminDashboard: React.FC = () => {
   const { toast } = useToast();
-  const [isAdminInstructor, setIsAdminInstructor] = useState(false);
+  const navigate = useNavigate();
+  const [isInstructorMode, setIsInstructorMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTimeFilter, setSelectedTimeFilter] = useState("week");
-  const [loading, setLoading] = useState(false);
+  const [dateFilter, setDateFilter] = useState<DateFilter>("today");
+  const [transactionFilter, setTransactionFilter] = useState<TransactionFilter>("all");
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
-  // Mock data - replace with actual API calls
-  const [stats, setStats] = useState<DashboardStats>({
-    totalSales: 125670,
-    activeUsers: 1248,
-    totalCourses: 156,
-    newSignups: 45,
-    liveClasses: 8,
-    quizAttempts: 234,
-  });
+  // Mock data - will be replaced with API calls
+  const stats: DashboardStats[] = [
+    { title: "Total Sales", value: "₹1,25,670.00", change: "+12%", trend: "up", icon: DollarSign, color: "text-blue-600" },
+    { title: "Active Users", value: "1,248", change: "+5%", trend: "up", icon: Users, color: "text-green-600" },
+    { title: "Total Courses", value: "156", change: "+3%", trend: "up", icon: BookOpen, color: "text-purple-600" },
+    { title: "New Signups", value: "45", change: "+18%", trend: "up", icon: UserPlus, color: "text-orange-600" },
+    { title: "Live Classes", value: "8", change: "1 active", trend: "up", icon: Video, color: "text-red-600" },
+    { title: "Quiz Attempts", value: "234", change: "+28 today", trend: "up", icon: FileText, color: "text-indigo-600" },
+  ];
 
-  const [transactions] = useState<Transaction[]>([
-    {
-      id: "TXN001",
-      student: "John Doe",
-      course: "React Masterclass",
-      amount: 299,
-      date: "2024-01-15",
-      status: "completed",
-    },
-    {
-      id: "TXN002", 
-      student: "Jane Smith",
-      course: "Python Fundamentals",
-      amount: 199,
-      date: "2024-01-15",
-      status: "pending",
-    },
-    {
-      id: "TXN003",
-      student: "Mike Johnson",
-      course: "Data Science Bootcamp",
-      amount: 499,
-      date: "2024-01-14",
-      status: "completed",
-    },
-  ]);
+  const transactions: Transaction[] = [
+    { id: "TXN001", student: "John Doe", course: "React Masterclass", amount: 299, date: "2024-01-15", status: "completed" },
+    { id: "TXN002", student: "Jane Smith", course: "Python Fundamentals", amount: 199, date: "2024-01-15", status: "pending" },
+    { id: "TXN003", student: "Mike Johnson", course: "Data Science Bootcamp", amount: 499, date: "2024-01-14", status: "completed" },
+    { id: "TXN004", student: "Sarah Wilson", course: "JavaScript Advanced", amount: 349, date: "2024-01-14", status: "failed" },
+    { id: "TXN005", student: "David Lee", course: "Web Development", amount: 599, date: "2024-01-13", status: "completed" },
+    { id: "TXN006", student: "Emily Chen", course: "UI/UX Design", amount: 449, date: "2024-01-13", status: "pending" },
+    { id: "TXN007", student: "Michael Brown", course: "Node.js Fundamentals", amount: 279, date: "2024-01-12", status: "completed" },
+    { id: "TXN008", student: "Lisa Anderson", course: "Database Design", amount: 399, date: "2024-01-12", status: "completed" },
+    { id: "TXN009", student: "James Wilson", course: "Cloud Computing", amount: 699, date: "2024-01-11", status: "failed" },
+    { id: "TXN010", student: "Emma Davis", course: "Machine Learning", amount: 899, date: "2024-01-11", status: "completed" },
+  ];
 
-  const [liveClasses] = useState<LiveClass[]>([
-    {
-      id: "LC001",
-      title: "Advanced JavaScript Concepts",
-      instructor: "Sarah Wilson",
-      time: "14:00",
-      duration: 90,
-      students: 45,
-      status: "upcoming",
-      startUrl: "https://zoom.us/start/123",
-    },
-    {
-      id: "LC002",
-      title: "Database Design Workshop",
-      instructor: "Mark Thompson",
-      time: "16:30",
-      duration: 120,
-      students: 32,
-      status: "live",
-    },
-    {
-      id: "LC003",
-      title: "UI/UX Design Principles",
-      instructor: "Emily Chen",
-      time: "19:00",
-      duration: 60,
-      students: 28,
-      status: "upcoming",
-    },
-  ]);
+  const notifications = [
+    { id: 1, type: "payment", message: "New payment received from John Doe", time: "5 min ago", read: false },
+    { id: 2, type: "user", message: "3 new instructor registrations pending approval", time: "1 hour ago", read: false },
+    { id: 3, type: "course", message: "React Masterclass completed by 15 students", time: "2 hours ago", read: false },
+    { id: 4, type: "system", message: "System backup completed successfully", time: "5 hours ago", read: true },
+    { id: 5, type: "alert", message: "Server maintenance scheduled for tonight", time: "1 day ago", read: true },
+  ];
 
-  const quickActions: QuickAction[] = [
-    {
-      id: "create-course",
-      title: "Create Course",
-      icon: BookOpen,
-      color: "bg-blue-500",
-      action: () => toast({ title: "Create Course", description: "Opening course creator..." }),
+  const liveClasses: LiveClass[] = [
+    { id: "LC001", title: "Advanced JavaScript Concepts", instructor: "Sarah Wilson", time: "14:00", duration: 90, students: 45, status: "upcoming", startUrl: "https://zoom.us/start/123" },
+    { id: "LC002", title: "Database Design Workshop", instructor: "Mark Thompson", time: "16:30", duration: 120, students: 32, status: "live" },
+    { id: "LC003", title: "UI/UX Design Principles", instructor: "Emily Chen", time: "19:00", duration: 60, students: 28, status: "upcoming" },
+  ];
+
+  const quickActions = [
+    { 
+      title: "Manage Students", 
+      description: "View & manage student accounts",
+      icon: Users, 
+      color: "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20",
+      action: () => toast({ title: "Manage Students", description: "Opening student management..." })
     },
-    {
-      id: "add-quiz",
-      title: "Add Quiz",
-      icon: FileText,
-      color: "bg-green-500",
-      action: () => toast({ title: "Add Quiz", description: "Opening quiz builder..." }),
+    { 
+      title: "Manage Instructors", 
+      description: "Oversee instructor profiles",
+      icon: UserPlus, 
+      color: "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20",
+      action: () => toast({ title: "Manage Instructors", description: "Opening instructor management..." })
     },
-    {
-      id: "manage-students",
-      title: "Manage Students",
-      icon: Users,
-      color: "bg-purple-500",
-      action: () => toast({ title: "Manage Students", description: "Opening student management..." }),
+    { 
+      title: "Send Announcements", 
+      description: "Broadcast to all users",
+      icon: Megaphone, 
+      color: "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20",
+      action: () => toast({ title: "Send Announcements", description: "Opening announcement composer..." })
     },
-    {
-      id: "upload-content",
-      title: "Upload Content",
-      icon: Upload,
-      color: "bg-orange-500",
-      action: () => toast({ title: "Upload Content", description: "Opening content uploader..." }),
-    },
-    {
-      id: "send-announcement",
-      title: "Send Announcement",
-      icon: MessageSquare,
-      color: "bg-pink-500",
-      action: () => toast({ title: "Send Announcement", description: "Opening announcement composer..." }),
-    },
-    {
-      id: "generate-report",
-      title: "Generate Report",
-      icon: BarChart3,
-      color: "bg-indigo-500",
-      action: () => toast({ title: "Generate Report", description: "Opening report generator..." }),
+    { 
+      title: "Generate Reports", 
+      description: "Analytics & insights",
+      icon: BarChart3, 
+      color: "bg-green-500/10 text-green-600 hover:bg-green-500/20",
+      action: () => toast({ title: "Generate Reports", description: "Opening report generator..." })
     },
   ];
 
@@ -203,11 +176,25 @@ const InstituteAdminDashboard: React.FC = () => {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "USD",
+      currency: "INR",
     }).format(amount);
   };
+
+  const handleModeSwitch = (checked: boolean) => {
+    setIsInstructorMode(checked);
+    if (checked) {
+      navigate("/instructor-dashboard");
+    }
+  };
+
+  const getFilteredTransactions = () => {
+    if (transactionFilter === "all") return transactions;
+    return transactions.filter(t => t.status === transactionFilter);
+  };
+
+  const unreadNotifications = notifications.filter(n => !n.read).length;
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -229,7 +216,7 @@ const InstituteAdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
         <div className="flex h-16 items-center justify-between px-6">
@@ -257,190 +244,270 @@ const InstituteAdminDashboard: React.FC = () => {
 
           {/* Right side */}
           <div className="flex items-center gap-4">
-            {/* Admin/Instructor Toggle */}
-            <div className="flex items-center gap-3 rounded-lg border p-2">
-              <span className="text-sm font-medium">Admin is also Instructor</span>
-              <Switch
-                checked={isAdminInstructor}
-                onCheckedChange={setIsAdminInstructor}
+            {/* Dashboard Mode Switcher */}
+            <div className="flex items-center gap-3 bg-card border rounded-lg px-4 py-2 shadow-sm">
+              <Label htmlFor="mode-switch" className={!isInstructorMode ? "font-semibold text-primary" : "text-muted-foreground"}>
+                Admin
+              </Label>
+              <Switch 
+                id="mode-switch" 
+                checked={isInstructorMode}
+                onCheckedChange={handleModeSwitch}
               />
+              <Label htmlFor="mode-switch" className={isInstructorMode ? "font-semibold text-primary" : "text-muted-foreground"}>
+                Instructor
+              </Label>
             </div>
 
             {/* Notifications */}
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <Badge className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 text-xs">3</Badge>
-            </Button>
+            <Popover open={notificationsOpen} onOpenChange={setNotificationsOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="icon" className="relative">
+                  <Bell className="h-5 w-5" />
+                  {unreadNotifications > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-semibold">
+                      {unreadNotifications}
+                    </span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-0 bg-background" align="end">
+                <div className="flex items-center justify-between p-4 border-b">
+                  <h3 className="font-semibold">Notifications</h3>
+                  <Badge variant="secondary">{unreadNotifications} new</Badge>
+                </div>
+                <ScrollArea className="h-[400px]">
+                  <div className="p-2">
+                    {notifications.map((notification) => (
+                      <div 
+                        key={notification.id}
+                        className={`p-3 rounded-lg mb-2 transition-colors ${
+                          !notification.read ? "bg-primary/5" : "hover:bg-muted/50"
+                        }`}
+                      >
+                        <div className="flex gap-3">
+                          <div className={`h-2 w-2 rounded-full mt-2 flex-shrink-0 ${
+                            !notification.read ? "bg-primary" : "bg-muted"
+                          }`} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm">{notification.message}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </PopoverContent>
+            </Popover>
 
-            {/* Profile */}
-            <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder.svg" />
-                <AvatarFallback>AD</AvatarFallback>
-              </Avatar>
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            </div>
+            {/* Profile Menu */}
+            <Popover open={profileOpen} onOpenChange={setProfileOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src="/placeholder.svg" />
+                    <AvatarFallback>AD</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-2 bg-background" align="end">
+                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg mb-2">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src="/placeholder.svg" />
+                    <AvatarFallback>AD</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm truncate">Admin User</p>
+                    <p className="text-xs text-muted-foreground truncate">admin@example.com</p>
+                  </div>
+                </div>
+                <Separator className="my-2" />
+                <div className="space-y-1">
+                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                    <User className="h-4 w-4 mr-2" />
+                    Profile Settings
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Billing
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Preferences
+                  </Button>
+                </div>
+                <Separator className="my-2" />
+                <Button variant="ghost" className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10" size="sm">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="p-6 space-y-6">
-        {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-          <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border-blue-200/20 cursor-pointer hover:shadow-lg transition-all">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Sales</p>
-                  <p className="text-2xl font-bold text-blue-600">{formatCurrency(stats.totalSales)}</p>
-                  <p className="text-xs text-green-600 flex items-center gap-1">
-                    <TrendingUp className="h-3 w-3" />
-                    +12% this {selectedTimeFilter}
-                  </p>
-                </div>
-                <DollarSign className="h-8 w-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-green-500/10 to-green-600/10 border-green-200/20 cursor-pointer hover:shadow-lg transition-all">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Active Users</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.activeUsers.toLocaleString()}</p>
-                  <p className="text-xs text-green-600">+5% today</p>
-                </div>
-                <Users className="h-8 w-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-purple-500/10 to-purple-600/10 border-purple-200/20 cursor-pointer hover:shadow-lg transition-all">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Courses</p>
-                  <p className="text-2xl font-bold text-purple-600">{stats.totalCourses}</p>
-                  <p className="text-xs text-green-600">+3 this week</p>
-                </div>
-                <BookOpen className="h-8 w-8 text-purple-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-orange-500/10 to-orange-600/10 border-orange-200/20 cursor-pointer hover:shadow-lg transition-all">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">New Signups</p>
-                  <p className="text-2xl font-bold text-orange-600">{stats.newSignups}</p>
-                  <p className="text-xs text-green-600">+18% today</p>
-                </div>
-                <UserPlus className="h-8 w-8 text-orange-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-red-500/10 to-red-600/10 border-red-200/20 cursor-pointer hover:shadow-lg transition-all">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Live Classes</p>
-                  <p className="text-2xl font-bold text-red-600">{stats.liveClasses}</p>
-                  <p className="text-xs text-blue-600">{liveClasses.filter(c => c.status === "live").length} active</p>
-                </div>
-                <Video className="h-8 w-8 text-red-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-indigo-500/10 to-indigo-600/10 border-indigo-200/20 cursor-pointer hover:shadow-lg transition-all">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Quiz Attempts</p>
-                  <p className="text-2xl font-bold text-indigo-600">{stats.quizAttempts}</p>
-                  <p className="text-xs text-green-600">+28 today</p>
-                </div>
-                <FileText className="h-8 w-8 text-indigo-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Quick Actions */}
+        {/* Date Filter */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {quickActions.map((action) => (
-                <Button
-                  key={action.id}
-                  variant="outline"
-                  className="h-20 flex-col gap-2 hover:shadow-md transition-all"
-                  onClick={action.action}
-                >
-                  <action.icon className="h-6 w-6" />
-                  <span className="text-xs text-center">{action.title}</span>
-                </Button>
-              ))}
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">Time Period:</span>
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {[
+                  { label: "Today", value: "today" as DateFilter },
+                  { label: "7 Days", value: "7days" as DateFilter },
+                  { label: "15 Days", value: "15days" as DateFilter },
+                  { label: "30 Days", value: "30days" as DateFilter },
+                  { label: "90 Days", value: "90days" as DateFilter },
+                  { label: "365 Days", value: "365days" as DateFilter },
+                ].map((filter) => (
+                  <Button
+                    key={filter.value}
+                    variant={dateFilter === filter.value ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setDateFilter(filter.value)}
+                  >
+                    {filter.label}
+                  </Button>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Main Dashboard Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Sales & Transactions */}
+        {/* KPI Stats Grid */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          {stats.map((stat, index) => (
+            <Card key={index} className="transition-all hover:shadow-lg hover:scale-[1.02] border-l-4" style={{ borderLeftColor: stat.color.includes('blue') ? 'hsl(var(--chart-2))' : stat.color.includes('green') ? 'hsl(var(--chart-1))' : stat.color.includes('purple') ? 'hsl(var(--chart-3))' : stat.color.includes('orange') ? 'hsl(var(--chart-4))' : stat.color.includes('red') ? 'hsl(var(--chart-5))' : 'hsl(var(--chart-3))' }}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
+                <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.color.includes('blue') ? 'from-blue-500/10 to-blue-500/5' : stat.color.includes('green') ? 'from-green-500/10 to-green-500/5' : stat.color.includes('purple') ? 'from-purple-500/10 to-purple-500/5' : stat.color.includes('orange') ? 'from-orange-500/10 to-orange-500/5' : stat.color.includes('red') ? 'from-red-500/10 to-red-500/5' : 'from-indigo-500/10 to-indigo-500/5'}`}>
+                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold mb-2">{stat.value}</div>
+                <div className="flex items-center gap-2">
+                  {stat.trend === "up" ? (
+                    <ArrowUpRight className="h-4 w-4 text-emerald-600" />
+                  ) : (
+                    <ArrowDownRight className="h-4 w-4 text-destructive" />
+                  )}
+                  <span className={`text-sm font-semibold ${stat.trend === "up" ? "text-emerald-600" : "text-destructive"}`}>
+                    {stat.change}
+                  </span>
+                  <span className="text-xs text-muted-foreground">vs previous period</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {quickActions.map((action, index) => (
+              <Card 
+                key={index} 
+                className="group cursor-pointer transition-all hover:shadow-xl hover:scale-[1.02] overflow-hidden relative"
+                onClick={action.action}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <CardContent className="p-6">
+                  <div className="flex flex-col items-center text-center space-y-3">
+                    <div className={`p-4 rounded-2xl transition-all ${action.color}`}>
+                      <action.icon className="h-8 w-8" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg mb-1">{action.title}</h3>
+                      <p className="text-sm text-muted-foreground">{action.description}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent Transactions and Live Classes */}
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Recent Transactions */}
           <Card className="lg:col-span-2">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
-                  Recent Transactions
-                </CardTitle>
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="h-5 w-5" />
+                    Recent Transactions
+                  </CardTitle>
+                  <CardDescription>Latest payment activities</CardDescription>
+                </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filter
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Export
-                  </Button>
+                  <div className="flex gap-2">
+                    {["all", "completed", "pending", "failed"].map((filter) => (
+                      <Button
+                        key={filter}
+                        variant={transactionFilter === filter ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setTransactionFilter(filter as TransactionFilter)}
+                      >
+                        {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {transactions.map((transaction) => (
-                  <div
-                    key={transaction.id}
-                    className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback>{transaction.student.split(" ").map(n => n[0]).join("")}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{transaction.student}</p>
-                        <p className="text-sm text-muted-foreground">{transaction.course}</p>
+              <ScrollArea className="h-[400px] pr-4">
+                <div className="space-y-3">
+                  {getFilteredTransactions().map((transaction) => (
+                    <div key={transaction.id} className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                          <FileText className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">{transaction.student}</p>
+                          <p className="text-xs text-muted-foreground">{transaction.course}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className="font-semibold text-sm">{formatCurrency(transaction.amount)}</p>
+                          <p className="text-xs text-muted-foreground">{transaction.date}</p>
+                        </div>
+                        <Badge 
+                          variant={
+                            transaction.status === "completed" ? "default" : 
+                            transaction.status === "pending" ? "secondary" : 
+                            "destructive"
+                          }
+                          className="capitalize"
+                        >
+                          {transaction.status}
+                        </Badge>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium">{formatCurrency(transaction.amount)}</p>
-                      <Badge className={`${getStatusBadgeColor(transaction.status)} text-white`}>
-                        {transaction.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </ScrollArea>
+              <div className="mt-4 pt-4 border-t">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => console.log("View all transactions")}
+                >
+                  View All Transactions
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -574,7 +641,7 @@ const InstituteAdminDashboard: React.FC = () => {
         </div>
 
         {/* Instructor Section (only shows when toggle is ON) */}
-        {isAdminInstructor && (
+        {isInstructorMode && (
           <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
