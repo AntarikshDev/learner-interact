@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { format, subDays } from "date-fns";
 import {
   Bell,
   ChevronDown,
@@ -14,7 +15,7 @@ import {
   Upload,
   MessageSquare,
   Download,
-  Calendar,
+  Calendar as CalendarIcon,
   Clock,
   TrendingUp,
   HardDrive,
@@ -46,6 +47,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 type DateFilter = "today" | "7days" | "15days" | "30days" | "90days" | "365days";
 type TransactionFilter = "all" | "completed" | "pending" | "failed";
@@ -95,6 +97,40 @@ const InstituteAdminDashboard: React.FC = () => {
   const [transactionFilter, setTransactionFilter] = useState<TransactionFilter>("all");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [dateRangeOpen, setDateRangeOpen] = useState(false);
+
+  const getDateRange = () => {
+    const today = new Date();
+    let startDate = today;
+
+    switch (dateFilter) {
+      case "today":
+        startDate = today;
+        break;
+      case "7days":
+        startDate = subDays(today, 7);
+        break;
+      case "15days":
+        startDate = subDays(today, 15);
+        break;
+      case "30days":
+        startDate = subDays(today, 30);
+        break;
+      case "90days":
+        startDate = subDays(today, 90);
+        break;
+      case "365days":
+        startDate = subDays(today, 365);
+        break;
+    }
+
+    return {
+      start: format(startDate, "MMM dd, yyyy"),
+      end: format(today, "MMM dd, yyyy"),
+    };
+  };
+
+  const dateRange = getDateRange();
 
   // Mock data - will be replaced with API calls
   const stats: DashboardStats[] = [
@@ -360,33 +396,69 @@ const InstituteAdminDashboard: React.FC = () => {
 
       {/* Main Content */}
       <main className="p-6 space-y-6">
-        {/* Date Filter */}
-        <Card>
+        {/* Date Range Filter */}
+        <Card className="bg-gradient-to-r from-card via-card to-accent/5">
           <CardContent className="p-4">
             <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Time Period:</span>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <CalendarIcon className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Selected Period</p>
+                  <p className="text-lg font-bold">
+                    {dateRange.start} - {dateRange.end}
+                  </p>
+                </div>
               </div>
-              <div className="flex gap-2 flex-wrap">
-                {[
-                  { label: "Today", value: "today" as DateFilter },
-                  { label: "7 Days", value: "7days" as DateFilter },
-                  { label: "15 Days", value: "15days" as DateFilter },
-                  { label: "30 Days", value: "30days" as DateFilter },
-                  { label: "90 Days", value: "90days" as DateFilter },
-                  { label: "365 Days", value: "365days" as DateFilter },
-                ].map((filter) => (
-                  <Button
-                    key={filter.value}
-                    variant={dateFilter === filter.value ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setDateFilter(filter.value)}
-                  >
-                    {filter.label}
+              
+              <Popover open={dateRangeOpen} onOpenChange={setDateRangeOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <Filter className="h-4 w-4" />
+                    Change Period
+                    <ChevronDown className="h-4 w-4" />
                   </Button>
-                ))}
-              </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-0 bg-background" align="end">
+                  <div className="p-4 border-b">
+                    <h3 className="font-semibold text-sm">Select Time Period</h3>
+                    <p className="text-xs text-muted-foreground mt-1">Choose a preset date range</p>
+                  </div>
+                  <div className="p-2 space-y-1">
+                    {[
+                      { label: "Today", value: "today" as DateFilter, desc: "Current day" },
+                      { label: "Last 7 Days", value: "7days" as DateFilter, desc: "Previous week" },
+                      { label: "Last 15 Days", value: "15days" as DateFilter, desc: "Two weeks" },
+                      { label: "Last 30 Days", value: "30days" as DateFilter, desc: "Previous month" },
+                      { label: "Last 90 Days", value: "90days" as DateFilter, desc: "Quarter" },
+                      { label: "Last 365 Days", value: "365days" as DateFilter, desc: "Full year" },
+                    ].map((filter) => (
+                      <button
+                        key={filter.value}
+                        onClick={() => {
+                          setDateFilter(filter.value);
+                          setDateRangeOpen(false);
+                        }}
+                        className={cn(
+                          "w-full text-left p-3 rounded-lg transition-colors",
+                          dateFilter === filter.value
+                            ? "bg-primary text-primary-foreground"
+                            : "hover:bg-muted"
+                        )}
+                      >
+                        <div className="font-medium text-sm">{filter.label}</div>
+                        <div className={cn(
+                          "text-xs mt-0.5",
+                          dateFilter === filter.value ? "text-primary-foreground/80" : "text-muted-foreground"
+                        )}>
+                          {filter.desc}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </CardContent>
         </Card>
