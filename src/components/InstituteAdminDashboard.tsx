@@ -257,7 +257,7 @@ const InstituteAdminDashboard: React.FC = () => {
       description: "Analytics & insights",
       icon: BarChart3, 
       color: "bg-green-500/10 text-green-600 hover:bg-green-500/20",
-      action: () => toast({ title: "Generate Reports", description: "Opening report generator..." })
+      action: () => navigate("/admin-reports")
     },
   ];
 
