@@ -16,6 +16,7 @@ import AdminProfileSettings from "./pages/AdminProfileSettings";
 import AdminBillingPage from "./pages/AdminBillingPage";
 import AdminPreferencesPage from "./pages/AdminPreferencesPage";
 import AdminReportsPage from "./pages/AdminReportsPage";
+import AdminSalesReportsPage from "./pages/AdminSalesReportsPage";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/admin-billing" element={<AdminBillingPage />} />
             <Route path="/admin-preferences" element={<AdminPreferencesPage />} />
             <Route path="/admin-reports" element={<AdminReportsPage />} />
+            <Route path="/admin-sales-reports" element={<AdminSalesReportsPage />} />
             <Route path="/instructor-dashboard" element={<ProInstructorDashboard />} />
             <Route path="/sub-admin-dashboard" element={<UltimateSubAdminDashboard />} />
             <Route path="/student-activity" element={<StudentActivityPage />} />

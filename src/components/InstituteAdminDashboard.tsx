@@ -710,7 +710,7 @@ const InstituteAdminDashboard: React.FC = () => {
                 <Button 
                   variant="outline" 
                   className="w-full"
-                  onClick={() => console.log("View all transactions")}
+                  onClick={() => navigate("/admin-sales-reports")}
                 >
                   View All Transactions
                   <ChevronRight className="h-4 w-4 ml-2" />
