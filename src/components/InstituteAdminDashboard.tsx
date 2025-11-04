@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { format, subDays } from "date-fns";
+import { format, subDays, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWithinInterval } from "date-fns";
+import { DateRange } from "react-day-picker";
 import {
   Bell,
   ChevronDown,
@@ -48,6 +49,7 @@ import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
 
 type DateFilter = "today" | "7days" | "15days" | "30days" | "90days" | "365days";
 type TransactionFilter = "all" | "completed" | "pending" | "failed";
@@ -98,39 +100,50 @@ const InstituteAdminDashboard: React.FC = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [dateRangeOpen, setDateRangeOpen] = useState(false);
+  const [customDateRange, setCustomDateRange] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: new Date(),
+  });
 
-  const getDateRange = () => {
+  const handlePresetDateRange = (preset: DateFilter) => {
     const today = new Date();
     let startDate = today;
 
-    switch (dateFilter) {
+    switch (preset) {
       case "today":
         startDate = today;
         break;
       case "7days":
-        startDate = subDays(today, 7);
+        startDate = subDays(today, 6);
         break;
       case "15days":
-        startDate = subDays(today, 15);
+        startDate = subDays(today, 14);
         break;
       case "30days":
-        startDate = subDays(today, 30);
+        startDate = subDays(today, 29);
         break;
       case "90days":
-        startDate = subDays(today, 90);
+        startDate = subDays(today, 89);
         break;
       case "365days":
-        startDate = subDays(today, 365);
+        startDate = subDays(today, 364);
         break;
     }
 
+    setCustomDateRange({ from: startDate, to: today });
+    setDateFilter(preset);
+  };
+
+  const getFormattedDateRange = () => {
+    if (!customDateRange?.from) return { start: "Select date", end: "" };
+    
     return {
-      start: format(startDate, "MMM dd, yyyy"),
-      end: format(today, "MMM dd, yyyy"),
+      start: format(customDateRange.from, "dd MMM yyyy"),
+      end: customDateRange.to ? format(customDateRange.to, "dd MMM yyyy") : format(customDateRange.from, "dd MMM yyyy"),
     };
   };
 
-  const dateRange = getDateRange();
+  const dateRange = getFormattedDateRange();
 
   // Mock data - will be replaced with API calls
   const stats: DashboardStats[] = [
@@ -398,64 +411,128 @@ const InstituteAdminDashboard: React.FC = () => {
       <main className="p-6 space-y-6">
         {/* Date Range Filter */}
         <Card className="bg-gradient-to-r from-card via-card to-accent/5">
-          <CardContent className="p-4">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <CalendarIcon className="h-5 w-5 text-primary" />
+              {/* Date Range Display */}
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <CalendarIcon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Start Date</p>
+                    <p className="text-base font-bold">{dateRange.start}</p>
+                  </div>
                 </div>
+                
+                <div className="h-12 w-px bg-border" />
+                
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Selected Period</p>
-                  <p className="text-lg font-bold">
-                    {dateRange.start} - {dateRange.end}
-                  </p>
+                  <p className="text-xs font-medium text-muted-foreground mb-1">End Date</p>
+                  <p className="text-base font-bold">{dateRange.end}</p>
                 </div>
               </div>
               
+              {/* Calendar Picker */}
               <Popover open={dateRangeOpen} onOpenChange={setDateRangeOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="gap-2">
-                    <Filter className="h-4 w-4" />
-                    Change Period
+                    <CalendarIcon className="h-4 w-4" />
+                    Select Dates
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-64 p-0 bg-background" align="end">
-                  <div className="p-4 border-b">
-                    <h3 className="font-semibold text-sm">Select Time Period</h3>
-                    <p className="text-xs text-muted-foreground mt-1">Choose a preset date range</p>
+                <PopoverContent className="w-auto p-0 bg-card z-50" align="end">
+                  <div className="p-4 border-b bg-muted/30">
+                    <h3 className="font-semibold text-sm mb-3">Select Date Range</h3>
+                    
+                    {/* Quick Presets */}
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                      {[
+                        { label: "Today", value: "today" as DateFilter },
+                        { label: "7 Days", value: "7days" as DateFilter },
+                        { label: "15 Days", value: "15days" as DateFilter },
+                        { label: "30 Days", value: "30days" as DateFilter },
+                        { label: "90 Days", value: "90days" as DateFilter },
+                        { label: "365 Days", value: "365days" as DateFilter },
+                      ].map((preset) => (
+                        <Button
+                          key={preset.value}
+                          variant={dateFilter === preset.value ? "default" : "outline"}
+                          size="sm"
+                          className="text-xs h-8"
+                          onClick={() => handlePresetDateRange(preset.value)}
+                        >
+                          {preset.label}
+                        </Button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="p-2 space-y-1">
-                    {[
-                      { label: "Today", value: "today" as DateFilter, desc: "Current day" },
-                      { label: "Last 7 Days", value: "7days" as DateFilter, desc: "Previous week" },
-                      { label: "Last 15 Days", value: "15days" as DateFilter, desc: "Two weeks" },
-                      { label: "Last 30 Days", value: "30days" as DateFilter, desc: "Previous month" },
-                      { label: "Last 90 Days", value: "90days" as DateFilter, desc: "Quarter" },
-                      { label: "Last 365 Days", value: "365days" as DateFilter, desc: "Full year" },
-                    ].map((filter) => (
-                      <button
-                        key={filter.value}
-                        onClick={() => {
-                          setDateFilter(filter.value);
-                          setDateRangeOpen(false);
-                        }}
-                        className={cn(
-                          "w-full text-left p-3 rounded-lg transition-colors",
-                          dateFilter === filter.value
-                            ? "bg-primary text-primary-foreground"
-                            : "hover:bg-muted"
-                        )}
-                      >
-                        <div className="font-medium text-sm">{filter.label}</div>
-                        <div className={cn(
-                          "text-xs mt-0.5",
-                          dateFilter === filter.value ? "text-primary-foreground/80" : "text-muted-foreground"
-                        )}>
-                          {filter.desc}
+                  
+                  {/* Calendar */}
+                  <div className="p-4 bg-background">
+                    <Calendar
+                      mode="range"
+                      selected={customDateRange}
+                      onSelect={setCustomDateRange}
+                      numberOfMonths={2}
+                      className="pointer-events-auto"
+                      classNames={{
+                        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                        month: "space-y-4",
+                        caption: "flex justify-center pt-1 relative items-center",
+                        caption_label: "text-sm font-medium",
+                        nav: "space-x-1 flex items-center",
+                        nav_button: cn(
+                          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+                        ),
+                        nav_button_previous: "absolute left-1",
+                        nav_button_next: "absolute right-1",
+                        table: "w-full border-collapse space-y-1",
+                        head_row: "flex",
+                        head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
+                        row: "flex w-full mt-2",
+                        cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                        day: cn(
+                          "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground rounded-md"
+                        ),
+                        day_range_start: "day-range-start rounded-l-md",
+                        day_range_end: "day-range-end rounded-r-md",
+                        day_selected:
+                          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                        day_today: "bg-accent text-accent-foreground font-semibold",
+                        day_outside:
+                          "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
+                        day_disabled: "text-muted-foreground opacity-50",
+                        day_range_middle:
+                          "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                        day_hidden: "invisible",
+                      }}
+                    />
+                    
+                    {/* Legend */}
+                    <div className="mt-4 pt-4 border-t space-y-2">
+                      <p className="text-xs font-semibold text-muted-foreground mb-2">Legend</p>
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="h-6 w-6 rounded bg-primary flex items-center justify-center">
+                          <span className="text-[10px] text-primary-foreground font-semibold">S</span>
                         </div>
-                      </button>
-                    ))}
+                        <span className="text-muted-foreground">Selected Range</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="h-6 w-6 rounded bg-accent flex items-center justify-center">
+                          <span className="text-[10px] font-semibold">T</span>
+                        </div>
+                        <span className="text-muted-foreground">Today</span>
+                      </div>
+                    </div>
+
+                    <Button 
+                      className="w-full mt-4" 
+                      onClick={() => setDateRangeOpen(false)}
+                    >
+                      Apply Date Range
+                    </Button>
                   </div>
                 </PopoverContent>
               </Popover>
