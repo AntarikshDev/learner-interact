@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Search,
   Bell,
   ChevronDown,
-  DollarSign,
+  IndianRupee,
   Users,
   BookOpen,
   UserPlus,
@@ -92,7 +91,6 @@ const InstituteAdminDashboard: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isInstructorMode, setIsInstructorMode] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilter>("today");
   const [transactionFilter, setTransactionFilter] = useState<TransactionFilter>("all");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -100,7 +98,7 @@ const InstituteAdminDashboard: React.FC = () => {
 
   // Mock data - will be replaced with API calls
   const stats: DashboardStats[] = [
-    { title: "Total Sales", value: "₹1,25,670.00", change: "+12%", trend: "up", icon: DollarSign, color: "text-blue-600" },
+    { title: "Total Sales", value: "₹1,25,670.00", change: "+12%", trend: "up", icon: IndianRupee, color: "text-blue-600" },
     { title: "Active Users", value: "1,248", change: "+5%", trend: "up", icon: Users, color: "text-green-600" },
     { title: "Total Courses", value: "156", change: "+3%", trend: "up", icon: BookOpen, color: "text-purple-600" },
     { title: "New Signups", value: "45", change: "+18%", trend: "up", icon: UserPlus, color: "text-orange-600" },
@@ -220,26 +218,14 @@ const InstituteAdminDashboard: React.FC = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
         <div className="flex h-16 items-center justify-between px-6">
-          {/* Logo & Search */}
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-                <BookOpen className="h-5 w-5 text-white" />
-              </div>
-              <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                EduInstitute
-              </h1>
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+              <BookOpen className="h-5 w-5 text-white" />
             </div>
-            
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search courses, students, quizzes..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-80 pl-10"
-              />
-            </div>
+            <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              EduInstitute
+            </h1>
           </div>
 
           {/* Right side */}
@@ -324,7 +310,15 @@ const InstituteAdminDashboard: React.FC = () => {
                 </div>
                 <Separator className="my-2" />
                 <div className="space-y-1">
-                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-start" 
+                    size="sm"
+                    onClick={() => {
+                      navigate("/admin-profile-settings");
+                      setProfileOpen(false);
+                    }}
+                  >
                     <User className="h-4 w-4 mr-2" />
                     Profile Settings
                   </Button>
@@ -444,7 +438,7 @@ const InstituteAdminDashboard: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="h-5 w-5" />
+                    <IndianRupee className="h-5 w-5" />
                     Recent Transactions
                   </CardTitle>
                   <CardDescription>Latest payment activities</CardDescription>
