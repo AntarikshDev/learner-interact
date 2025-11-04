@@ -34,6 +34,7 @@ import {
   CreditCard,
   LogOut,
   ChevronRight,
+  Send,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,10 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type DateFilter = "today" | "7days" | "15days" | "30days" | "90days" | "365days";
 type TransactionFilter = "all" | "completed" | "pending" | "failed";
@@ -104,6 +109,11 @@ const InstituteAdminDashboard: React.FC = () => {
     from: new Date(),
     to: new Date(),
   });
+  const [isAnnouncementOpen, setIsAnnouncementOpen] = useState(false);
+  const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
+  const [selectAllStudents, setSelectAllStudents] = useState(false);
+  const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
+  const [emailSearchQuery, setEmailSearchQuery] = useState("");
 
   const handlePresetDateRange = (preset: DateFilter) => {
     const today = new Date();
@@ -182,6 +192,44 @@ const InstituteAdminDashboard: React.FC = () => {
     { id: "LC003", title: "UI/UX Design Principles", instructor: "Emily Chen", time: "19:00", duration: 60, students: 28, status: "upcoming" },
   ];
 
+  const recentStudents = [
+    { 
+      id: 1,
+      name: "Alice Johnson", 
+      email: "alice.johnson@email.com",
+      course: "React Masterclass", 
+      avatar: "/placeholder.svg"
+    },
+    { 
+      id: 2,
+      name: "Bob Chen", 
+      email: "bob.chen@email.com",
+      course: "Full-Stack JS", 
+      avatar: "/placeholder.svg"
+    },
+    { 
+      id: 3,
+      name: "Carol Rodriguez", 
+      email: "carol.rodriguez@email.com",
+      course: "Python Data Science", 
+      avatar: "/placeholder.svg"
+    },
+    { 
+      id: 4,
+      name: "David Lee", 
+      email: "david.lee@email.com",
+      course: "UI/UX Design", 
+      avatar: "/placeholder.svg"
+    },
+    { 
+      id: 5,
+      name: "Emma Wilson", 
+      email: "emma.wilson@email.com",
+      course: "Backend Development", 
+      avatar: "/placeholder.svg"
+    },
+  ];
+
   const quickActions = [
     { 
       title: "Manage Students", 
@@ -202,7 +250,7 @@ const InstituteAdminDashboard: React.FC = () => {
       description: "Broadcast to all users",
       icon: Megaphone, 
       color: "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20",
-      action: () => toast({ title: "Send Announcements", description: "Opening announcement composer..." })
+      action: () => setIsAnnouncementOpen(true)
     },
     { 
       title: "Generate Reports", 
@@ -870,6 +918,182 @@ const InstituteAdminDashboard: React.FC = () => {
           </Card>
         )}
       </main>
+
+      {/* Quick Announcement Dialog */}
+      <Dialog open={isAnnouncementOpen} onOpenChange={setIsAnnouncementOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Quick Announcement</DialogTitle>
+            <DialogDescription>Send announcement to course-wise students</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="announcement-title">Announcement Title</Label>
+              <Input id="announcement-title" placeholder="Enter announcement title" />
+            </div>
+            <div>
+              <Label htmlFor="announcement-message">Message</Label>
+              <Textarea 
+                id="announcement-message" 
+                placeholder="Write your announcement message..." 
+                rows={4}
+              />
+            </div>
+            
+            {/* Course Selection */}
+            <div>
+              <Label>Select Courses</Label>
+              <Select 
+                value={selectedCourses.join(',')} 
+                onValueChange={(value) => {
+                  if (value === 'all') {
+                    const allCourses = ['React Masterclass', 'Full-Stack JS', 'Python Data Science', 'UI/UX Design', 'Backend Development'];
+                    setSelectedCourses(allCourses);
+                  } else {
+                    const courses = value ? value.split(',').filter(Boolean) : [];
+                    setSelectedCourses(courses);
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select courses (multiple selection)" />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="all">All Courses</SelectItem>
+                  <SelectItem value="React Masterclass">React Masterclass</SelectItem>
+                  <SelectItem value="Full-Stack JS">Full-Stack JS</SelectItem>
+                  <SelectItem value="Python Data Science">Python Data Science</SelectItem>
+                  <SelectItem value="UI/UX Design">UI/UX Design</SelectItem>
+                  <SelectItem value="Backend Development">Backend Development</SelectItem>
+                </SelectContent>
+              </Select>
+              {selectedCourses.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {selectedCourses.map((course) => (
+                    <Badge key={course} variant="secondary" className="text-xs">
+                      {course}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-4 w-4 p-0 ml-1"
+                        onClick={() => setSelectedCourses(selectedCourses.filter(c => c !== course))}
+                      >
+                        ×
+                      </Button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Email Search Filter */}
+            <div>
+              <Label htmlFor="email-search">Search by Email</Label>
+              <Input 
+                id="email-search"
+                placeholder="Search student by email..." 
+                value={emailSearchQuery}
+                onChange={(e) => setEmailSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <Label>Select Recipients</Label>
+              <div className="border rounded-lg p-4 max-h-60 overflow-y-auto bg-background">
+                <div className="flex items-center space-x-2 mb-3 pb-2 border-b">
+                  <Checkbox 
+                    id="select-all"
+                    checked={selectAllStudents}
+                    onCheckedChange={(checked) => {
+                      const isChecked = checked === true;
+                      setSelectAllStudents(isChecked);
+                      const currentFilteredStudents = recentStudents.filter(student => {
+                        const matchesCourse = selectedCourses.length === 0 || selectedCourses.includes(student.course);
+                        const matchesEmail = emailSearchQuery === '' || 
+                          student.email.toLowerCase().includes(emailSearchQuery.toLowerCase()) ||
+                          student.name.toLowerCase().includes(emailSearchQuery.toLowerCase());
+                        return matchesCourse && matchesEmail;
+                      });
+                      
+                      if (isChecked) {
+                        setSelectedStudents(currentFilteredStudents.map(s => s.id));
+                      } else {
+                        setSelectedStudents([]);
+                      }
+                    }}
+                  />
+                  <Label htmlFor="select-all" className="font-medium">Select All Students</Label>
+                </div>
+                {recentStudents
+                  .filter(student => {
+                    const matchesCourse = selectedCourses.length === 0 || selectedCourses.includes(student.course);
+                    const matchesEmail = emailSearchQuery === '' || 
+                      student.email.toLowerCase().includes(emailSearchQuery.toLowerCase()) ||
+                      student.name.toLowerCase().includes(emailSearchQuery.toLowerCase());
+                    return matchesCourse && matchesEmail;
+                  })
+                  .map((student) => (
+                    <div key={student.id} className="flex items-center space-x-2 py-2">
+                      <Checkbox 
+                        id={`student-${student.id}`}
+                        checked={selectedStudents.includes(student.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked === true) {
+                            setSelectedStudents([...selectedStudents, student.id]);
+                          } else {
+                            setSelectedStudents(selectedStudents.filter(id => id !== student.id));
+                          }
+                        }}
+                      />
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={student.avatar} />
+                        <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{student.name}</p>
+                        <p className="text-xs text-muted-foreground">{student.email}</p>
+                        <p className="text-xs text-primary">{student.course}</p>
+                      </div>
+                    </div>
+                  ))}
+                {recentStudents.filter(student => {
+                  const matchesCourse = selectedCourses.length === 0 || selectedCourses.includes(student.course);
+                  const matchesEmail = emailSearchQuery === '' || 
+                    student.email.toLowerCase().includes(emailSearchQuery.toLowerCase()) ||
+                    student.name.toLowerCase().includes(emailSearchQuery.toLowerCase());
+                  return matchesCourse && matchesEmail;
+                }).length === 0 && (
+                  <div className="text-center py-4 text-muted-foreground">
+                    <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No students found matching criteria</p>
+                  </div>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                {selectedStudents.length} student(s) selected
+              </p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsAnnouncementOpen(false)}>Cancel</Button>
+              <Button 
+                onClick={() => { 
+                  setIsAnnouncementOpen(false); 
+                  toast({ 
+                    title: "Announcement Sent", 
+                    description: `Announcement sent to ${selectedStudents.length} students.` 
+                  }); 
+                  setSelectedStudents([]);
+                  setSelectAllStudents(false);
+                }}
+                disabled={selectedStudents.length === 0}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Send Announcement
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
