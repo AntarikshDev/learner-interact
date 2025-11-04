@@ -322,11 +322,27 @@ const InstituteAdminDashboard: React.FC = () => {
                     <User className="h-4 w-4 mr-2" />
                     Profile Settings
                   </Button>
-                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-start" 
+                    size="sm"
+                    onClick={() => {
+                      navigate("/admin-billing");
+                      setProfileOpen(false);
+                    }}
+                  >
                     <CreditCard className="h-4 w-4 mr-2" />
                     Billing
                   </Button>
-                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-start" 
+                    size="sm"
+                    onClick={() => {
+                      navigate("/admin-preferences");
+                      setProfileOpen(false);
+                    }}
+                  >
                     <Settings className="h-4 w-4 mr-2" />
                     Preferences
                   </Button>

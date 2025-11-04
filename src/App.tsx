@@ -12,6 +12,8 @@ import UltimateSubAdminDashboard from "./components/UltimateSubAdminDashboard";
 import StudentActivityPage from "./pages/StudentActivityPage";
 import StudentPerformancePage from "./pages/StudentPerformancePage";
 import AdminProfileSettings from "./pages/AdminProfileSettings";
+import AdminBillingPage from "./pages/AdminBillingPage";
+import AdminPreferencesPage from "./pages/AdminPreferencesPage";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +28,8 @@ const App = () => (
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/admin-dashboard" element={<InstituteAdminDashboard />} />
           <Route path="/admin-profile-settings" element={<AdminProfileSettings />} />
+          <Route path="/admin-billing" element={<AdminBillingPage />} />
+          <Route path="/admin-preferences" element={<AdminPreferencesPage />} />
           <Route path="/instructor-dashboard" element={<ProInstructorDashboard />} />
           <Route path="/sub-admin-dashboard" element={<UltimateSubAdminDashboard />} />
           <Route path="/student-activity" element={<StudentActivityPage />} />
