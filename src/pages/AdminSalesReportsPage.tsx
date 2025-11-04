@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download, TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users, PackageCheck, Search, Filter, RotateCcw, Eye, MessageSquare, MoreHorizontal, IndianRupee, FileText, CreditCard, Zap } from "lucide-react";
+import { ArrowLeft, Download, TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users, PackageCheck, Search, Filter, RotateCcw, Eye, MessageSquare, MoreHorizontal, MoreVertical, IndianRupee, FileText, CreditCard, Zap, Percent } from "lucide-react";
+import { TransactionActionDialog } from "@/components/TransactionActionDialog";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -81,12 +83,55 @@ const transactionData = Array.from({ length: 50 }, (_, i) => ({
 
 const AdminSalesReportsPage = () => {
   const navigate = useNavigate();
+
+  const handleActionClick = (type: "view" | "invoice" | "contact" | "refund", transaction: any) => {
+    setActionDialog({
+      isOpen: true,
+      type,
+      transaction,
+    });
+  };
+
+  const handleActionSubmit = (data: any) => {
+    const { transaction, ...actionData } = data;
+    
+    switch (actionDialog.type) {
+      case "invoice":
+        toast({
+          title: "Invoice Generated",
+          description: `Invoice for ${transaction.orderId} has been generated successfully.`,
+        });
+        break;
+      case "contact":
+        toast({
+          title: "Message Sent",
+          description: `Email sent to ${transaction.userEmail} successfully.`,
+        });
+        break;
+      case "refund":
+        toast({
+          title: "Refund Processed",
+          description: `Transaction ${transaction.orderId} has been marked as refunded.`,
+        });
+        break;
+    }
+  };
   const [activeTab, setActiveTab] = useState("overview");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedChannel, setSelectedChannel] = useState("all");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [actionDialog, setActionDialog] = useState<{
+    isOpen: boolean;
+    type: "view" | "invoice" | "contact" | "refund";
+    transaction: any | null;
+  }>({
+    isOpen: false,
+    type: "view",
+    transaction: null,
+  });
+  const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -502,20 +547,63 @@ const AdminSalesReportsPage = () => {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleActionClick("view", {
+                                  orderId: transaction.orderId,
+                                  userName: transaction.user,
+                                  userEmail: transaction.phone,
+                                  courseName: transaction.course,
+                                  amount: transaction.amount,
+                                  status: transaction.status,
+                                  date: transaction.date,
+                                  paymentMethod: transaction.paymentMethod,
+                                  channel: transaction.channel
+                                })}>
                                   <Eye className="h-4 w-4 mr-2" />
                                   View Details
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleActionClick("invoice", {
+                                  orderId: transaction.orderId,
+                                  userName: transaction.user,
+                                  userEmail: transaction.phone,
+                                  courseName: transaction.course,
+                                  amount: transaction.amount,
+                                  status: transaction.status,
+                                  date: transaction.date,
+                                  paymentMethod: transaction.paymentMethod,
+                                  channel: transaction.channel
+                                })}>
                                   <FileText className="h-4 w-4 mr-2" />
                                   Generate Invoice
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleActionClick("contact", {
+                                  orderId: transaction.orderId,
+                                  userName: transaction.user,
+                                  userEmail: transaction.phone,
+                                  courseName: transaction.course,
+                                  amount: transaction.amount,
+                                  status: transaction.status,
+                                  date: transaction.date,
+                                  paymentMethod: transaction.paymentMethod,
+                                  channel: transaction.channel
+                                })}>
                                   <MessageSquare className="h-4 w-4 mr-2" />
                                   Contact User
                                 </DropdownMenuItem>
                                 {transaction.status === "completed" && (
-                                  <DropdownMenuItem className="text-destructive">
+                                  <DropdownMenuItem 
+                                    className="text-destructive"
+                                    onClick={() => handleActionClick("refund", {
+                                      orderId: transaction.orderId,
+                                      userName: transaction.user,
+                                      userEmail: transaction.phone,
+                                      courseName: transaction.course,
+                                      amount: transaction.amount,
+                                      status: transaction.status,
+                                      date: transaction.date,
+                                      paymentMethod: transaction.paymentMethod,
+                                      channel: transaction.channel
+                                    })}
+                                  >
                                     <RotateCcw className="h-4 w-4 mr-2" />
                                     Refund
                                   </DropdownMenuItem>
@@ -693,6 +781,15 @@ const AdminSalesReportsPage = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Action Dialog */}
+      <TransactionActionDialog
+        isOpen={actionDialog.isOpen}
+        onClose={() => setActionDialog({ ...actionDialog, isOpen: false })}
+        actionType={actionDialog.type}
+        transaction={actionDialog.transaction}
+        onSubmit={handleActionSubmit}
+      />
     </div>
   );
 };
